@@ -153,13 +153,14 @@ const ResourceDetail = () => {
                 </div>
             </div>
         </div>
-        
+
     );
 
 };
 
 
 const styles = {
+    
     container: {
         maxWidth: '900px',
         margin: '0 auto',
