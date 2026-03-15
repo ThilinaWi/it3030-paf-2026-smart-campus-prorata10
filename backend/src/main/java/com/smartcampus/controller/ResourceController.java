@@ -63,8 +63,7 @@ public class ResourceController {
     public ResponseEntity<Void> deleteResource(@PathVariable String id) {
         resourceService.deleteResource(id);
         return ResponseEntity.noContent().build();
-        
-    }
 
+    }
 
 }
