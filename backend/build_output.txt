@@ -1,0 +1,378 @@
+﻿mvn.cmd : WARNING: A restricted method in 
+java.lang.System has been called
+At line:1 char:1
++ &"C:\Program Files\JetBrains\IntelliJ IDEA 
+2025.1.3\plugins\maven\lib ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A r 
+   est...has been called:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: java.lang.System::load has been called by 
+org.fusesource.jansi.internal.JansiLoader in an unnamed 
+module (file:/C:/Program%20Files/JetBrains/IntelliJ%20IDEA
+%202025.1.3/plugins/maven/lib/maven3/lib/jansi-2.4.1.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid 
+a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future 
+release unless native access is enabled
+
+WARNING: A terminally deprecated method in 
+sun.misc.Unsafe has been called
+WARNING: sun.misc.Unsafe::objectFieldOffset has been 
+called by com.google.common.util.concurrent.AbstractFuture
+$UnsafeAtomicHelper (file:/C:/Program%20Files/JetBrains/In
+telliJ%20IDEA%202025.1.3/plugins/maven/lib/maven3/lib/guav
+a-33.2.1-jre.jar)
+WARNING: Please consider reporting this to the 
+maintainers of class com.google.common.util.concurrent.Abs
+tractFuture$UnsafeAtomicHelper
+WARNING: sun.misc.Unsafe::objectFieldOffset will be 
+removed in a future release
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.smartcampus:smart-campus-hub >------------------
+[INFO] Building Smart Campus Operations Hub 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ smart-campus-hub ---
+[INFO] Deleting C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ smart-campus-hub ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ smart-campus-hub ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 24 source files with javac [debug parameters release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtAuthenticationFilter.java:[31,36] variable jwtTokenProvider not initialized in the default constructor
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtAuthenticationFilter.java:[32,34] variable userRepository not initialized in the default constructor
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[40,32] cannot find symbol
+  symbol:   method getRole()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[41,32] cannot find symbol
+  symbol:   method getName()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[42,33] cannot find symbol
+  symbol:   method getEmail()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[45,30] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/controller/AuthController.java:[30,75] cannot find symbol
+  symbol:   method getToken()
+  location: variable request of type com.smartcampus.auth.dto.GoogleTokenRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/controller/AuthController.java:[40,58] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[66,37] cannot find symbol
+  symbol:   method setName(java.lang.String)
+  location: variable existingUser of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[67,37] cannot find symbol
+  symbol:   method setProfilePicture(java.lang.String)
+  location: variable existingUser of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[71,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[78,25] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.auth.service.AuthService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[88,13] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.auth.service.AuthService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[106,23] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.auth.dto.UserDTO
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[107,25] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[108,27] cannot find symbol
+  symbol:   method getName()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[109,28] cannot find symbol
+  symbol:   method getEmail()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[110,37] cannot find symbol
+  symbol:   method getProfilePicture()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[111,27] cannot find symbol
+  symbol:   method getRole()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[112,31] cannot find symbol
+  symbol:   method getProvider()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/dto/AuthResponse.java:[22,28] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.auth.dto.AuthResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[29,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[31,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[47,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[71,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[73,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[89,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[91,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[107,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[109,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[31,92] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[42,61] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[54,79] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[64,47] cannot find symbol
+  symbol:   method getId()
+  location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[61,26] cannot find symbol
+  symbol:   method getUserId()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[65,21] cannot find symbol
+  symbol:   method setRead(boolean)
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[67,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[77,30] cannot find symbol
+  symbol:   method setRead(boolean)
+  location: variable n of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[79,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[86,49] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[87,32] cannot find symbol
+  symbol:   method getUserId()
+  location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[88,30] cannot find symbol
+  symbol:   method getType()
+  location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[89,33] cannot find symbol
+  symbol:   method getMessage()
+  location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,9] cannot find symbol
+  symbol:   variable log
+  location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,65] cannot find symbol
+  symbol:   method getUserId()
+  location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,86] cannot find symbol
+  symbol:   method getMessage()
+  location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[101,31] cannot find symbol
+  symbol:   method builder()
+  location: class com.smartcampus.notification.dto.NotificationDTO
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[102,33] cannot find symbol
+  symbol:   method getId()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[103,37] cannot find symbol
+  symbol:   method getUserId()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[104,35] cannot find symbol
+  symbol:   method getType()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[105,38] cannot find symbol
+  symbol:   method getMessage()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[106,37] cannot find symbol
+  symbol:   method isRead()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[107,40] cannot find symbol
+  symbol:   method getCreatedAt()
+  location: variable notification of type com.smartcampus.notification.model.Notification
+[INFO] 53 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.762 s
+[INFO] Finished at: 2026-04-04T11:13:21+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project smart-campus-hub: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtAuthenticationFilter.java:[31,36] variable jwtTokenProvider not initialized in the default constructor
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtAuthenticationFilter.java:[32,34] variable userRepository not initialized in the default constructor
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[40,32] cannot find symbol
+[ERROR]   symbol:   method getRole()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[41,32] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[42,33] cannot find symbol
+[ERROR]   symbol:   method getEmail()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/config/JwtTokenProvider.java:[45,30] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/controller/AuthController.java:[30,75] cannot find symbol
+[ERROR]   symbol:   method getToken()
+[ERROR]   location: variable request of type com.smartcampus.auth.dto.GoogleTokenRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/controller/AuthController.java:[40,58] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[66,37] cannot find symbol
+[ERROR]   symbol:   method setName(java.lang.String)
+[ERROR]   location: variable existingUser of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[67,37] cannot find symbol
+[ERROR]   symbol:   method setProfilePicture(java.lang.String)
+[ERROR]   location: variable existingUser of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[71,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[78,25] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.auth.service.AuthService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[88,13] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.auth.service.AuthService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[106,23] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.auth.dto.UserDTO
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[107,25] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[108,27] cannot find symbol
+[ERROR]   symbol:   method getName()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[109,28] cannot find symbol
+[ERROR]   symbol:   method getEmail()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[110,37] cannot find symbol
+[ERROR]   symbol:   method getProfilePicture()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[111,27] cannot find symbol
+[ERROR]   symbol:   method getRole()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/service/AuthService.java:[112,31] cannot find symbol
+[ERROR]   symbol:   method getProvider()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/auth/dto/AuthResponse.java:[22,28] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.auth.dto.AuthResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[29,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[31,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[47,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[71,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[73,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[89,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[91,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[107,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.exception.GlobalExceptionHandler
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/exception/GlobalExceptionHandler.java:[109,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.exception.ErrorResponse
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[31,92] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[42,61] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[54,79] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/controller/NotificationController.java:[64,47] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable user of type com.smartcampus.auth.model.User
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[61,26] cannot find symbol
+[ERROR]   symbol:   method getUserId()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[65,21] cannot find symbol
+[ERROR]   symbol:   method setRead(boolean)
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[67,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[77,30] cannot find symbol
+[ERROR]   symbol:   method setRead(boolean)
+[ERROR]   location: variable n of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[79,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[86,49] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[87,32] cannot find symbol
+[ERROR]   symbol:   method getUserId()
+[ERROR]   location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[88,30] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[89,33] cannot find symbol
+[ERROR]   symbol:   method getMessage()
+[ERROR]   location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,9] cannot find symbol
+[ERROR]   symbol:   variable log
+[ERROR]   location: class com.smartcampus.notification.service.NotificationService
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,65] cannot find symbol
+[ERROR]   symbol:   method getUserId()
+[ERROR]   location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[93,86] cannot find symbol
+[ERROR]   symbol:   method getMessage()
+[ERROR]   location: variable request of type com.smartcampus.notification.dto.CreateNotificationRequest
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[101,31] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.smartcampus.notification.dto.NotificationDTO
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[102,33] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[103,37] cannot find symbol
+[ERROR]   symbol:   method getUserId()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[104,35] cannot find symbol
+[ERROR]   symbol:   method getType()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[105,38] cannot find symbol
+[ERROR]   symbol:   method getMessage()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[106,37] cannot find symbol
+[ERROR]   symbol:   method isRead()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] /C:/Users/thili/OneDrive/Documents/GitHub/it3030-paf-2026-smart-campus-groupXX/backend/src/main/java/com/smartcampus/notification/service/NotificationService.java:[107,40] cannot find symbol
+[ERROR]   symbol:   method getCreatedAt()
+[ERROR]   location: variable notification of type com.smartcampus.notification.model.Notification
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
