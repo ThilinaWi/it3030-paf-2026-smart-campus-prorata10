@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { HiOutlineHome, HiOutlineLogout, HiOutlineBell } from 'react-icons/hi';
+import { HiOutlineHome, HiOutlineLogout, HiOutlineBell, HiOutlineCalendar } from 'react-icons/hi';
 import { useAuth } from '../hooks/useAuth';
 import NotificationPanel from './NotificationPanel';
 
@@ -39,6 +39,24 @@ export default function Navbar() {
             <HiOutlineBell size={18} />
             <span>Notifications</span>
           </Link>
+          <Link
+            to="/bookings"
+            className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}
+            id="nav-bookings"
+          >
+            <HiOutlineCalendar size={18} />
+            <span>Bookings</span>
+          </Link>
+          {user?.role === 'ADMIN' && (
+            <Link
+              to="/admin/bookings"
+              className={`nav-link ${location.pathname === '/admin/bookings' ? 'active' : ''}`}
+              id="nav-admin-bookings"
+            >
+              <HiOutlineCalendar size={18} />
+              <span>Admin Bookings</span>
+            </Link>
+          )}
         </div>
 
         {/* Right Section */}
