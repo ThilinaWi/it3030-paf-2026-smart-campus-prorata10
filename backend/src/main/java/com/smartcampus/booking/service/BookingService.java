@@ -1,5 +1,6 @@
 package com.smartcampus.booking.service;
 
+import com.smartcampus.auth.model.Role;
 import com.smartcampus.booking.dto.BookingDTO;
 import com.smartcampus.booking.dto.CreateBookingRequest;
 import com.smartcampus.booking.dto.UpdateBookingRequest;
@@ -66,6 +67,7 @@ public class BookingService {
         booking.setStatus(BookingStatus.PENDING);
 
         Booking saved = bookingRepository.save(booking);
+        sendNewBookingNotificationToAdmins(saved);
         log.info("Booking created by user {} for resource {} on {}",
                 userId, request.getResourceId(), request.getDate());
         return toDTO(saved);
@@ -106,11 +108,15 @@ public class BookingService {
         booking.setAttendees(request.getAttendees());
 
         // Any edit to an already approved booking must go through admin approval again.
-        if (booking.getStatus() == BookingStatus.APPROVED) {
+        boolean wasApproved = booking.getStatus() == BookingStatus.APPROVED;
+        if (wasApproved) {
             booking.setStatus(BookingStatus.PENDING);
         }
 
         Booking updated = bookingRepository.save(booking);
+        if (wasApproved) {
+            sendUpdatedBookingNotificationToAdmins(updated);
+        }
         log.info("Booking {} updated by user {}", bookingId, userId);
         return toDTO(updated);
     }
@@ -240,6 +246,29 @@ public class BookingService {
                 userId, NotificationType.INFO, message);
         notificationService.createNotification(notificationRequest);
         log.info("Notification sent to user {} for booking status: {}", userId, status);
+    }
+
+    private void sendNewBookingNotificationToAdmins(Booking booking) {
+        String message = String.format(
+                "New booking request for %s on %s (%s-%s)",
+                booking.getResourceId(),
+                booking.getDate(),
+                booking.getStartTime(),
+                booking.getEndTime()
+        );
+        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
+    }
+
+    private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
+        String message = String.format(
+                "Booking %s was updated and requires re-approval (%s on %s, %s-%s)",
+                booking.getId(),
+                booking.getResourceId(),
+                booking.getDate(),
+                booking.getStartTime(),
+                booking.getEndTime()
+        );
+        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
     }
 
     /**

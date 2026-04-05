@@ -1,8 +1,12 @@
 package com.smartcampus.notification.service;
 
+import com.smartcampus.auth.model.Role;
+import com.smartcampus.auth.model.User;
+import com.smartcampus.auth.repository.UserRepository;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.notification.dto.CreateNotificationRequest;
 import com.smartcampus.notification.dto.NotificationDTO;
+import com.smartcampus.notification.model.NotificationType;
 import com.smartcampus.notification.model.Notification;
 import com.smartcampus.notification.repository.NotificationRepository;
 import org.slf4j.Logger;
@@ -21,9 +25,12 @@ public class NotificationService {
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
 
-    public NotificationService(NotificationRepository notificationRepository) {
+    public NotificationService(NotificationRepository notificationRepository,
+                               UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -94,6 +101,29 @@ public class NotificationService {
         Notification saved = notificationRepository.save(notification);
         log.info("Created notification for user {}: {}", request.getUserId(), request.getMessage());
         return toDTO(saved);
+    }
+
+    /**
+     * Create the same notification for every user in a target role.
+     */
+    public void createNotificationsForRole(Role role, NotificationType type, String message) {
+        List<User> targetUsers = userRepository.findAllByRole(role);
+
+        if (targetUsers.isEmpty()) {
+            log.warn("No users found with role {}. Skipping role-based notification: {}", role, message);
+            return;
+        }
+
+        List<Notification> notifications = targetUsers.stream().map(user -> {
+            Notification notification = new Notification();
+            notification.setUserId(user.getId());
+            notification.setType(type);
+            notification.setMessage(message);
+            return notification;
+        }).collect(Collectors.toList());
+
+        notificationRepository.saveAll(notifications);
+        log.info("Created {} notifications for role {}", notifications.size(), role);
     }
 
     /**

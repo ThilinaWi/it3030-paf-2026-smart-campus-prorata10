@@ -551,6 +551,130 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Admin Notification Verification",
+      "item": [
+        {
+          "name": "Get Current User (Expect ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.test('Authenticated user is ADMIN', function () {",
+                  "  pm.expect(data.role).to.eql(pm.collectionVariables.get('adminExpectedRole') || 'ADMIN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Use an ADMIN JWT in jwtToken variable. Confirms the active token belongs to an ADMIN account."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Notifications (ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "  pm.expect(data).to.be.an('array');",
+                  "});",
+                  "",
+                  "if (Array.isArray(data) && data.length > 0 && data[0].id) {",
+                  "  pm.collectionVariables.set('notificationId', data[0].id);",
+                  "}",
+                  "",
+                  "console.log('[ADMIN notifications] total:', Array.isArray(data) ? data.length : 0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": "Fetch notifications for currently authenticated ADMIN user."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unread Count (ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.test('Unread count field exists', function () {",
+                  "  pm.expect(data).to.have.property('count');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications/unread-count",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Get unread notification count for authenticated ADMIN user."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {
@@ -583,6 +707,10 @@
     {
       "key": "bookingId",
       "value": ""
+    },
+    {
+      "key": "adminExpectedRole",
+      "value": "ADMIN"
     }
   ]
 }

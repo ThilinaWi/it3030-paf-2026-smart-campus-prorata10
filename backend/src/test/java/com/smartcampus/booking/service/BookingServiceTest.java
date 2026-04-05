@@ -1,5 +1,6 @@
 package com.smartcampus.booking.service;
 
+import com.smartcampus.auth.model.Role;
 import com.smartcampus.booking.dto.BookingDTO;
 import com.smartcampus.booking.dto.CreateBookingRequest;
 import com.smartcampus.booking.dto.UpdateBookingRequest;
@@ -8,6 +9,7 @@ import com.smartcampus.booking.entity.BookingStatus;
 import com.smartcampus.booking.repository.BookingRepository;
 import com.smartcampus.exception.ConflictException;
 import com.smartcampus.exception.ForbiddenOperationException;
+import com.smartcampus.notification.model.NotificationType;
 import com.smartcampus.notification.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -120,6 +124,11 @@ class BookingServiceTest {
         verify(bookingRepository).save(bookingCaptor.capture());
         assertEquals("user-1", bookingCaptor.getValue().getUserId());
         assertEquals(BookingStatus.PENDING, bookingCaptor.getValue().getStatus());
+        verify(notificationService).createNotificationsForRole(
+                eq(Role.ADMIN),
+                eq(NotificationType.ALERT),
+                contains("New booking request")
+        );
     }
 
     @Test
@@ -276,5 +285,10 @@ class BookingServiceTest {
                 BookingDTO result = bookingService.updateBooking("b1", "owner-1", updateRequest);
 
                 assertEquals(BookingStatus.PENDING, result.getStatus());
+                verify(notificationService).createNotificationsForRole(
+                                eq(Role.ADMIN),
+                                eq(NotificationType.ALERT),
+                                contains("requires re-approval")
+                );
         }
 }
