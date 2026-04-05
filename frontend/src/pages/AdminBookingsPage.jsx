@@ -7,41 +7,69 @@ import { HiOutlineCalendar, HiOutlineRefresh, HiOutlineX } from 'react-icons/hi'
  * Admin bookings management page — view all bookings and approve/reject.
  */
 export default function AdminBookingsPage() {
-  const { bookings, loading, error, refresh, updateStatus } = useBookings(true);
   const [successMsg, setSuccessMsg] = useState(null);
   const [filter, setFilter] = useState('ALL');
+  const [decisionModal, setDecisionModal] = useState({
+    open: false,
+    bookingId: null,
+    action: null,
+    reason: '',
+    error: null,
+  });
+  const { bookings, loading, error, refresh, updateStatus } = useBookings(true, filter);
 
-  const handleApprove = async (id) => {
-    try {
-      await updateStatus(id, 'APPROVED');
-      setSuccessMsg('Booking approved successfully.');
-      setTimeout(() => setSuccessMsg(null), 4000);
-    } catch (err) {
-      console.error('Failed to approve booking:', err);
-    }
+  const openDecisionModal = (bookingId, action) => {
+    setDecisionModal({
+      open: true,
+      bookingId,
+      action,
+      reason: action === 'APPROVED' ? 'Approved by admin' : '',
+      error: null,
+    });
   };
 
-  const handleReject = async (id) => {
-    if (!window.confirm('Are you sure you want to reject this booking?')) return;
-    try {
-      await updateStatus(id, 'REJECTED');
-      setSuccessMsg('Booking rejected.');
-      setTimeout(() => setSuccessMsg(null), 4000);
-    } catch (err) {
-      console.error('Failed to reject booking:', err);
-    }
+  const closeDecisionModal = () => {
+    setDecisionModal({
+      open: false,
+      bookingId: null,
+      action: null,
+      reason: '',
+      error: null,
+    });
   };
 
-  const filteredBookings = filter === 'ALL'
-    ? bookings
-    : bookings.filter((b) => b.status === filter);
+  const submitDecision = async () => {
+    const { bookingId, action, reason } = decisionModal;
+    if (!bookingId || !action) return;
+
+    if (action === 'REJECTED' && !reason.trim()) {
+      setDecisionModal((prev) => ({
+        ...prev,
+        error: 'Rejection reason is required.',
+      }));
+      return;
+    }
+
+    try {
+      await updateStatus(bookingId, action, reason.trim());
+      setSuccessMsg(action === 'APPROVED' ? 'Booking approved successfully.' : 'Booking rejected.');
+      setTimeout(() => setSuccessMsg(null), 4000);
+      closeDecisionModal();
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to update booking decision.';
+      setDecisionModal((prev) => ({
+        ...prev,
+        error: message,
+      }));
+    }
+  };
 
   const statusCounts = {
-    ALL: bookings.length,
-    PENDING: bookings.filter((b) => b.status === 'PENDING').length,
-    APPROVED: bookings.filter((b) => b.status === 'APPROVED').length,
-    REJECTED: bookings.filter((b) => b.status === 'REJECTED').length,
-    CANCELLED: bookings.filter((b) => b.status === 'CANCELLED').length,
+    ALL: filter === 'ALL' ? bookings.length : '-',
+    PENDING: filter === 'PENDING' ? bookings.length : '-',
+    APPROVED: filter === 'APPROVED' ? bookings.length : '-',
+    REJECTED: filter === 'REJECTED' ? bookings.length : '-',
+    CANCELLED: filter === 'CANCELLED' ? bookings.length : '-',
   };
 
   return (
@@ -73,6 +101,60 @@ export default function AdminBookingsPage() {
         </div>
       )}
 
+      {decisionModal.open && (
+        <div className="booking-form-overlay" id="admin-decision-modal-overlay">
+          <div className="booking-form-modal" id="admin-decision-modal">
+            <div className="modal-header">
+              <h2>{decisionModal.action === 'APPROVED' ? 'Approve Booking' : 'Reject Booking'}</h2>
+              <button className="modal-close" onClick={closeDecisionModal}>
+                <HiOutlineX size={20} />
+              </button>
+            </div>
+
+            {decisionModal.error && (
+              <div className="alert alert-error" style={{ margin: '1rem 1.25rem 0' }}>
+                <span>{decisionModal.error}</span>
+              </div>
+            )}
+
+            <div className="booking-form" style={{ paddingTop: '1rem' }}>
+              <p style={{ color: 'var(--gray-600)', marginBottom: '0.25rem' }}>
+                Add a reason for this decision.
+              </p>
+              <div className="form-group">
+                <label htmlFor="admin-decision-reason">Decision Reason</label>
+                <textarea
+                  id="admin-decision-reason"
+                  value={decisionModal.reason}
+                  onChange={(e) => setDecisionModal((prev) => ({
+                    ...prev,
+                    reason: e.target.value,
+                    error: null,
+                  }))}
+                  rows={3}
+                  placeholder={decisionModal.action === 'APPROVED'
+                    ? 'Approved by admin after review'
+                    : 'Enter rejection reason (e.g., timeslot conflict, maintenance, policy limits)'}
+                />
+              </div>
+
+              <div className="form-actions">
+                <button type="button" className="btn btn-secondary" onClick={closeDecisionModal}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className={`btn ${decisionModal.action === 'APPROVED' ? 'btn-approve' : 'btn-reject'}`}
+                  onClick={submitDecision}
+                >
+                  {decisionModal.action === 'APPROVED' ? 'Approve' : 'Reject'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Filter Tabs */}
       <div className="booking-filters" id="booking-filters">
         {['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'CANCELLED'].map((status) => (
@@ -99,7 +181,7 @@ export default function AdminBookingsPage() {
             <p>{error}</p>
             <button className="btn btn-primary" onClick={refresh}>Try Again</button>
           </div>
-        ) : filteredBookings.length === 0 ? (
+        ) : bookings.length === 0 ? (
           <div className="empty-state" id="no-admin-bookings">
             <HiOutlineCalendar size={48} />
             <h3>No {filter !== 'ALL' ? filter.toLowerCase() : ''} bookings</h3>
@@ -111,12 +193,12 @@ export default function AdminBookingsPage() {
           </div>
         ) : (
           <div className="bookings-grid">
-            {filteredBookings.map((booking) => (
+            {bookings.map((booking) => (
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                onApprove={handleApprove}
-                onReject={handleReject}
+                onApprove={(id) => openDecisionModal(id, 'APPROVED')}
+                onReject={(id) => openDecisionModal(id, 'REJECTED')}
                 isAdmin={true}
               />
             ))}

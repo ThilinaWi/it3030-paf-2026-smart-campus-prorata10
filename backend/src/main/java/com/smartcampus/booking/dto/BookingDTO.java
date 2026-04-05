@@ -21,6 +21,7 @@ public class BookingDTO {
     private String purpose;
     private List<String> attendees;
     private BookingStatus status;
+    private String adminReason;
     private LocalDateTime createdAt;
 
     public BookingDTO() {}
@@ -67,6 +68,9 @@ public class BookingDTO {
 
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+
+    public String getAdminReason() { return adminReason; }
+    public void setAdminReason(String adminReason) { this.adminReason = adminReason; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

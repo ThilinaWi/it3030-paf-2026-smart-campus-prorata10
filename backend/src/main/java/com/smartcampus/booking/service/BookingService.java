@@ -142,10 +142,20 @@ public class BookingService {
     }
 
     /**
+     * Get all bookings for a given status (admin filter support).
+     */
+    public List<BookingDTO> getAllBookings(BookingStatus status) {
+        return bookingRepository.findByStatusOrderByCreatedAtDesc(status)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Update booking status (approve or reject). Only PENDING bookings can be approved/rejected.
      * Triggers a notification to the booking owner.
      */
-    public BookingDTO updateBookingStatus(String bookingId, BookingStatus newStatus) {
+    public BookingDTO updateBookingStatus(String bookingId, BookingStatus newStatus, String reason) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
 
@@ -160,12 +170,18 @@ public class BookingService {
                     "Booking can only be APPROVED or REJECTED by admin. Received: " + newStatus);
         }
 
+        String trimmedReason = reason == null ? null : reason.trim();
+        if (newStatus == BookingStatus.REJECTED && (trimmedReason == null || trimmedReason.isEmpty())) {
+            throw new IllegalArgumentException("Reason is required when rejecting a booking");
+        }
+
         booking.setStatus(newStatus);
+        booking.setAdminReason(trimmedReason == null || trimmedReason.isEmpty() ? null : trimmedReason);
         Booking updated = bookingRepository.save(booking);
         log.info("Booking {} status updated to {} by admin", bookingId, newStatus);
 
         // Trigger notification to the booking owner
-        sendStatusNotification(booking.getUserId(), newStatus);
+        sendStatusNotification(updated.getUserId(), updated.getStatus(), updated.getAdminReason());
 
         return toDTO(updated);
     }
@@ -234,12 +250,16 @@ public class BookingService {
     /**
      * Send a notification to the user when their booking status changes.
      */
-    private void sendStatusNotification(String userId, BookingStatus status) {
+    private void sendStatusNotification(String userId, BookingStatus status, String reason) {
         String message;
         if (status == BookingStatus.APPROVED) {
             message = "Your booking has been approved";
         } else {
             message = "Your booking has been rejected";
+        }
+
+        if (reason != null && !reason.isBlank()) {
+            message = message + ": " + reason;
         }
 
         CreateNotificationRequest notificationRequest = new CreateNotificationRequest(
@@ -275,7 +295,7 @@ public class BookingService {
      * Convert Booking entity to BookingDTO.
      */
     private BookingDTO toDTO(Booking booking) {
-        return new BookingDTO(
+        BookingDTO dto = new BookingDTO(
                 booking.getId(),
                 booking.getUserId(),
                 booking.getResourceId(),
@@ -287,5 +307,7 @@ public class BookingService {
                 booking.getStatus(),
                 booking.getCreatedAt()
         );
+        dto.setAdminReason(booking.getAdminReason());
+        return dto;
     }
 }

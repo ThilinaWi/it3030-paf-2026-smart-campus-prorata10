@@ -70,6 +70,9 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
           <span>{booking.attendees?.length || 0} attendee(s)</span>
         </div>
         <p className="booking-purpose">{booking.purpose}</p>
+        {booking.adminReason && (
+          <p className="booking-admin-reason">Decision reason: {booking.adminReason}</p>
+        )}
       </div>
 
       <div className="booking-card-footer">

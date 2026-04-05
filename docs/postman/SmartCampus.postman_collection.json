@@ -527,7 +527,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"APPROVED\"\n}",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"reason\": \"Approved after availability review\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

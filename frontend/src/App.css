@@ -910,6 +910,15 @@
   padding: var(--space-3);
 }
 
+.booking-admin-reason {
+  color: var(--gray-700);
+  font-size: var(--font-size-sm);
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
 .booking-card-footer {
   display: flex;
   align-items: center;

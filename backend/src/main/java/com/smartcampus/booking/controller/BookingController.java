@@ -5,6 +5,7 @@ import com.smartcampus.booking.dto.BookingDTO;
 import com.smartcampus.booking.dto.CreateBookingRequest;
 import com.smartcampus.booking.dto.UpdateBookingRequest;
 import com.smartcampus.booking.dto.UpdateBookingStatusRequest;
+import com.smartcampus.booking.entity.BookingStatus;
 import com.smartcampus.booking.service.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -70,8 +71,11 @@ public class BookingController {
      */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BookingDTO>> getAllBookings() {
-        List<BookingDTO> bookings = bookingService.getAllBookings();
+    public ResponseEntity<List<BookingDTO>> getAllBookings(
+            @RequestParam(required = false) BookingStatus status) {
+        List<BookingDTO> bookings = status == null
+                ? bookingService.getAllBookings()
+                : bookingService.getAllBookings(status);
         return ResponseEntity.ok(bookings);
     }
 
@@ -84,7 +88,7 @@ public class BookingController {
     public ResponseEntity<BookingDTO> updateBookingStatus(
             @PathVariable String id,
             @Valid @RequestBody UpdateBookingStatusRequest request) {
-        BookingDTO booking = bookingService.updateBookingStatus(id, request.getStatus());
+        BookingDTO booking = bookingService.updateBookingStatus(id, request.getStatus(), request.getReason());
         return ResponseEntity.ok(booking);
     }
 

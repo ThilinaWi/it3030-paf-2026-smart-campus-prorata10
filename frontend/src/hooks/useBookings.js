@@ -4,9 +4,10 @@ import bookingService from '../services/bookingService';
 /**
  * Custom hook for managing bookings state.
  * @param {boolean} isAdmin - Whether to fetch all bookings (admin mode)
+ * @param {string} adminStatusFilter - Optional status filter for admin bookings
  * @returns {{ bookings, loading, error, refresh, createBooking, cancelBooking, updateStatus }}
  */
-export function useBookings(isAdmin = false) {
+export function useBookings(isAdmin = false, adminStatusFilter = 'ALL') {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,7 +17,7 @@ export function useBookings(isAdmin = false) {
       setLoading(true);
       setError(null);
       const data = isAdmin
-        ? await bookingService.getAllBookings()
+        ? await bookingService.getAllBookings(adminStatusFilter)
         : await bookingService.getMyBookings();
       setBookings(data);
     } catch (err) {
@@ -25,7 +26,7 @@ export function useBookings(isAdmin = false) {
     } finally {
       setLoading(false);
     }
-  }, [isAdmin]);
+  }, [isAdmin, adminStatusFilter]);
 
   useEffect(() => {
     fetchBookings();
@@ -53,8 +54,8 @@ export function useBookings(isAdmin = false) {
     return updated;
   }, []);
 
-  const updateStatus = useCallback(async (id, status) => {
-    const updated = await bookingService.updateBookingStatus(id, status);
+  const updateStatus = useCallback(async (id, status, reason) => {
+    const updated = await bookingService.updateBookingStatus(id, status, reason);
     setBookings((prev) =>
       prev.map((b) => (b.id === id ? updated : b))
     );
