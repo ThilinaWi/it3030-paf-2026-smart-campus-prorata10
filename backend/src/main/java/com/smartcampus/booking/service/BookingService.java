@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 public class BookingService {
 
     private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+    private static final DateTimeFormatter CLOCK_12H_FORMAT = DateTimeFormatter.ofPattern("h:mm a");
 
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
@@ -185,7 +188,7 @@ public class BookingService {
         log.info("Booking {} status updated to {} by admin", bookingId, newStatus);
 
         // Trigger notification to the booking owner
-        sendStatusNotification(updated.getUserId(), updated.getStatus(), updated.getAdminReason());
+        sendStatusNotification(updated.getUserId(), updated.getStatus(), updated.getResourceId(), updated.getAdminReason());
 
         return toDTO(updated);
     }
@@ -254,16 +257,12 @@ public class BookingService {
     /**
      * Send a notification to the user when their booking status changes.
      */
-    private void sendStatusNotification(String userId, BookingStatus status, String reason) {
+    private void sendStatusNotification(String userId, BookingStatus status, String resourceId, String reason) {
         String message;
         if (status == BookingStatus.APPROVED) {
-            message = "Your booking has been approved";
+            message = String.format("Approved: Your booking for %s has been approved", resourceId);
         } else {
-            message = "Your booking has been rejected";
-        }
-
-        if (reason != null && !reason.isBlank()) {
-            message = message + ": " + reason;
+            message = String.format("Rejected: Your booking for %s was rejected (reason: %s)", resourceId, reason);
         }
 
         CreateNotificationRequest notificationRequest = new CreateNotificationRequest(
@@ -274,26 +273,26 @@ public class BookingService {
 
     private void sendNewBookingNotificationToAdmins(Booking booking) {
         String requesterName = resolveUserName(booking.getUserId());
+        String timeRange = formatTimeRange(booking.getStartTime(), booking.getEndTime());
         String message = String.format(
-            "New booking request from %s for %s on %s (%s-%s)",
+            "New booking request from %s for %s on %s (%s)",
             requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
-                booking.getStartTime(),
-                booking.getEndTime()
+                timeRange
         );
         notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
     }
 
     private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
         String requesterName = resolveUserName(booking.getUserId());
+        String timeRange = formatTimeRange(booking.getStartTime(), booking.getEndTime());
         String message = String.format(
-            "Booking update from %s requires re-approval for %s on %s (%s-%s)",
+            "Booking update from %s requires re-approval for %s on %s (%s)",
             requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
-                booking.getStartTime(),
-                booking.getEndTime()
+                timeRange
         );
         notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
     }
@@ -323,5 +322,13 @@ public class BookingService {
         return userRepository.findById(userId)
                 .map(user -> user.getName() == null || user.getName().isBlank() ? user.getEmail() : user.getName())
                 .orElse(userId);
+    }
+
+    private String formatTimeRange(LocalTime startTime, LocalTime endTime) {
+        return formatClockTime(startTime) + "-" + formatClockTime(endTime);
+    }
+
+    private String formatClockTime(LocalTime time) {
+        return time.format(CLOCK_12H_FORMAT);
     }
 }
