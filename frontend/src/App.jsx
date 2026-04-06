@@ -1,29 +1,26 @@
-import { BrowserRouter } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { AuthProvider } from './context/AuthContext';
-import { GOOGLE_CLIENT_ID } from './utils/constants';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import AppRoutes from './routes/AppRoutes';
+import ResourceList from './components/resources/ResourceList';
+import ResourceForm from './components/resources/ResourceForm';
+import ResourceDetail from './components/resources/ResourceDetail';
 import './App.css';
 
-/**
- * Root application component.
- */
 function App() {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <BrowserRouter>
-        <AuthProvider>
-          <div className="app" id="app-root">
+    return (
+        <Router>
             <Navbar />
-            <main className="main-content">
-              <AppRoutes />
-            </main>
-          </div>
-        </AuthProvider>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
-  );
+            <div className="main-content">
+                <Routes>
+                    <Route path="/" element={<Navigate to="/resources" />} />
+                    <Route path="/resources" element={<ResourceList />} />
+                    <Route path="/resources/create" element={<ResourceForm />} />
+                    <Route path="/resources/edit/:id" element={<ResourceForm />} />
+                    <Route path="/resources/:id" element={<ResourceDetail />} />
+                </Routes>
+            </div>
+        </Router>
+    );
 }
 
 export default App;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { resourceApi } from '../../services/resourceService';
+import { resourceApi } from '../../services/api';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 const ResourceDetail = () => {
@@ -25,92 +25,161 @@ const ResourceDetail = () => {
         }
     };
 
-    const getStatusClass = (status) => {
+    const getStatusColor = (status) => {
         switch (status) {
-            case 'ACTIVE': return 'status-active';
-            case 'OUT_OF_SERVICE': return 'status-out_of_service';
-            case 'MAINTENANCE': return 'status-maintenance';
-            default: return '';
+            case 'ACTIVE': return '#27ae60';
+            case 'OUT_OF_SERVICE': return '#e74c3c';
+            case 'MAINTENANCE': return '#f39c12';
+            default: return '#95a5a6';
         }
     };
 
     if (loading) return <LoadingSpinner />;
-    if (error) return <div className="error-message" style={{ margin: '2rem' }}>{error}</div>;
-    if (!resource) return <div className="error-message" style={{ margin: '2rem' }}>No resource found</div>;
+    if (error) return <div style={styles.error}>{error}</div>;
+    if (!resource) return <div style={styles.error}>No resource found</div>;
 
     return (
-        <div className="resource-detail-container">
-            <div className="resource-detail-card">
-                <div className="resource-detail-header">
-                    <h1>{resource.name}</h1>
-                    <span className={`resource-status ${getStatusClass(resource.status)}`}>
+        <div style={styles.container}>
+            <div style={styles.card}>
+                <Link to="/resources" style={styles.backButton}>
+                    ← Back to Resources
+                </Link>
+                
+                <div style={styles.header}>
+                    <h1 style={styles.title}>{resource.name}</h1>
+                    <span style={{...styles.status, backgroundColor: getStatusColor(resource.status)}}>
                         {resource.status}
                     </span>
                 </div>
                 
-                <div className="resource-detail-body">
-                    <div className="detail-section">
-                        <div className="detail-grid">
-                            <div>
-                                <div className="detail-label">📌 Type</div>
-                                <div className="detail-value">{resource.type?.replace('_', ' ')}</div>
-                            </div>
-                            <div>
-                                <div className="detail-label">👥 Capacity</div>
-                                <div className="detail-value">{resource.capacity} people</div>
-                            </div>
-                            <div>
-                                <div className="detail-label">📍 Location</div>
-                                <div className="detail-value">{resource.location}</div>
-                            </div>
-                            {resource.availabilityWindow && (
-                                <div>
-                                    <div className="detail-label">🕐 Availability</div>
-                                    <div className="detail-value">{resource.availabilityWindow}</div>
-                                </div>
-                            )}
+                <div style={styles.details}>
+                    <div style={styles.row}>
+                        <div style={styles.detailItem}>
+                            <strong>📌 Type:</strong> {resource.type?.replace('_', ' ')}
+                        </div>
+                        <div style={styles.detailItem}>
+                            <strong>👥 Capacity:</strong> {resource.capacity} people
                         </div>
                     </div>
                     
+                    <div style={styles.detailItem}>
+                        <strong>📍 Location:</strong> {resource.location}
+                    </div>
+                    
                     {resource.description && (
-                        <div className="detail-section">
-                            <div className="detail-label">📝 Description</div>
-                            <div className="detail-value">{resource.description}</div>
+                        <div style={styles.detailItem}>
+                            <strong>📝 Description:</strong>
+                            <p>{resource.description}</p>
+                        </div>
+                    )}
+                    
+                    {resource.availabilityWindow && (
+                        <div style={styles.detailItem}>
+                            <strong>🕐 Availability:</strong> {resource.availabilityWindow}
                         </div>
                     )}
                     
                     {resource.imageUrl && (
-                        <div className="detail-section">
-                            <div className="detail-label">🖼️ Image</div>
-                            <img src={resource.imageUrl} alt={resource.name} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px' }} />
+                        <div style={styles.detailItem}>
+                            <strong>🖼️ Image:</strong>
+                            <img src={resource.imageUrl} alt={resource.name} style={styles.image} />
                         </div>
                     )}
                     
-                    <div className="detail-section">
-                        <div className="detail-grid">
-                            <div>
-                                <div className="detail-label">📅 Created</div>
-                                <div className="detail-value">{new Date(resource.createdAt).toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div className="detail-label">🔄 Last Updated</div>
-                                <div className="detail-value">{new Date(resource.updatedAt).toLocaleString()}</div>
-                            </div>
+                    <div style={styles.row}>
+                        <div style={styles.detailItem}>
+                            <strong>📅 Created:</strong> {new Date(resource.createdAt).toLocaleString()}
+                        </div>
+                        <div style={styles.detailItem}>
+                            <strong>🔄 Updated:</strong> {new Date(resource.updatedAt).toLocaleString()}
                         </div>
                     </div>
                 </div>
                 
-                <div className="resource-detail-actions">
-                    <Link to={`/resources/edit/${resource.id}`} className="btn-edit" style={{ textDecoration: 'none', padding: 'var(--space-1) var(--space-5)' }}>
+                <div style={styles.actions}>
+                    <Link to={`/resources/edit/${resource.id}`} style={{...styles.button, backgroundColor: '#f39c12', textDecoration: 'none'}}>
                         ✏️ Edit Resource
-                    </Link>
-                    <Link to="/resources" className="btn-cancel" style={{ textDecoration: 'none' }}>
-                        ← Back to Resources
                     </Link>
                 </div>
             </div>
         </div>
     );
+};
+
+const styles = {
+    container: {
+        maxWidth: '900px',
+        margin: '0 auto',
+        padding: '2rem',
+    },
+    card: {
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '2rem',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+    },
+    backButton: {
+        display: 'inline-block',
+        marginBottom: '1rem',
+        color: '#3498db',
+        textDecoration: 'none',
+    },
+    header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        borderBottom: '2px solid #eee',
+        paddingBottom: '1rem',
+    },
+    title: {
+        margin: 0,
+        color: '#2c3e50',
+    },
+    status: {
+        padding: '4px 12px',
+        borderRadius: '20px',
+        color: 'white',
+        fontSize: '12px',
+        fontWeight: 'bold',
+    },
+    details: {
+        marginBottom: '2rem',
+    },
+    row: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '1rem',
+        marginBottom: '1rem',
+    },
+    detailItem: {
+        marginBottom: '1rem',
+    },
+    image: {
+        maxWidth: '100%',
+        maxHeight: '300px',
+        marginTop: '0.5rem',
+        borderRadius: '8px',
+    },
+    actions: {
+        display: 'flex',
+        justifyContent: 'flex-end',
+        borderTop: '1px solid #eee',
+        paddingTop: '1rem',
+    },
+    button: {
+        padding: '0.5rem 1rem',
+        borderRadius: '6px',
+        color: 'white',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        display: 'inline-block',
+    },
+    error: {
+        textAlign: 'center',
+        padding: '2rem',
+        color: '#e74c3c',
+    },
 };
 
 export default ResourceDetail;
