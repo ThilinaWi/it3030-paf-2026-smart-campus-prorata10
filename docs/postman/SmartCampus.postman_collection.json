@@ -89,7 +89,11 @@
                   "const data = pm.response.json();",
                   "pm.test('Response has user email', function () {",
                   "  pm.expect(data.email).to.be.a('string');",
-                  "});"
+                  "});",
+                  "",
+                  "if (data.id) {",
+                  "  pm.collectionVariables.set('currentUserId', data.id);",
+                  "}"
                 ]
               }
             }
@@ -527,7 +531,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"APPROVED\"\n}",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"reason\": \"Approved after availability review\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -675,6 +679,109 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Admin Role Management",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.test('Response is an array', function () {",
+                  "  pm.expect(data).to.be.an('array');",
+                  "});",
+                  "",
+                  "const currentUserId = pm.collectionVariables.get('currentUserId');",
+                  "if (Array.isArray(data) && data.length > 0) {",
+                  "  const target = data.find(u => u.id !== currentUserId) || data[0];",
+                  "  if (target && target.id) pm.collectionVariables.set('managedUserId', target.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            },
+            "description": "Admin-only endpoint to list users for role management."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const data = pm.response.json();",
+                  "pm.test('Role updated in response', function () {",
+                  "  pm.expect(data.role).to.eql('TECHNICIAN');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"TECHNICIAN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{managedUserId}}/role",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{managedUserId}}",
+                "role"
+              ]
+            },
+            "description": "Admin-only endpoint to update a user's role. Run Get All Users first to set managedUserId."
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {
@@ -711,6 +818,14 @@
     {
       "key": "adminExpectedRole",
       "value": "ADMIN"
+    },
+    {
+      "key": "managedUserId",
+      "value": ""
+    },
+    {
+      "key": "currentUserId",
+      "value": ""
     }
   ]
 }

@@ -5,6 +5,7 @@ import DashboardPage from '../pages/DashboardPage';
 import NotificationsPage from '../pages/NotificationsPage';
 import BookingsPage from '../pages/BookingsPage';
 import AdminBookingsPage from '../pages/AdminBookingsPage';
+import AdminUsersPage from '../pages/AdminUsersPage';
 
 /**
  * Application route definitions.
@@ -35,7 +36,7 @@ export default function AppRoutes() {
       <Route
         path="/bookings"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['USER', 'TECHNICIAN']}>
             <BookingsPage />
           </ProtectedRoute>
         }
@@ -45,6 +46,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminBookingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminUsersPage />
           </ProtectedRoute>
         }
       />

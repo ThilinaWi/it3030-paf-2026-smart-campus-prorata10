@@ -1,6 +1,7 @@
 package com.smartcampus.booking.service;
 
 import com.smartcampus.auth.model.Role;
+import com.smartcampus.auth.repository.UserRepository;
 import com.smartcampus.booking.dto.BookingDTO;
 import com.smartcampus.booking.dto.CreateBookingRequest;
 import com.smartcampus.booking.dto.UpdateBookingRequest;
@@ -31,11 +32,14 @@ public class BookingService {
 
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public BookingService(BookingRepository bookingRepository,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          UserRepository userRepository) {
         this.bookingRepository = bookingRepository;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -142,10 +146,20 @@ public class BookingService {
     }
 
     /**
+     * Get all bookings for a given status (admin filter support).
+     */
+    public List<BookingDTO> getAllBookings(BookingStatus status) {
+        return bookingRepository.findByStatusOrderByCreatedAtDesc(status)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Update booking status (approve or reject). Only PENDING bookings can be approved/rejected.
      * Triggers a notification to the booking owner.
      */
-    public BookingDTO updateBookingStatus(String bookingId, BookingStatus newStatus) {
+    public BookingDTO updateBookingStatus(String bookingId, BookingStatus newStatus, String reason) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
 
@@ -160,12 +174,18 @@ public class BookingService {
                     "Booking can only be APPROVED or REJECTED by admin. Received: " + newStatus);
         }
 
+        String trimmedReason = reason == null ? null : reason.trim();
+        if (newStatus == BookingStatus.REJECTED && (trimmedReason == null || trimmedReason.isEmpty())) {
+            throw new IllegalArgumentException("Reason is required when rejecting a booking");
+        }
+
         booking.setStatus(newStatus);
+        booking.setAdminReason(newStatus == BookingStatus.REJECTED ? trimmedReason : null);
         Booking updated = bookingRepository.save(booking);
         log.info("Booking {} status updated to {} by admin", bookingId, newStatus);
 
         // Trigger notification to the booking owner
-        sendStatusNotification(booking.getUserId(), newStatus);
+        sendStatusNotification(updated.getUserId(), updated.getStatus(), updated.getAdminReason());
 
         return toDTO(updated);
     }
@@ -234,12 +254,16 @@ public class BookingService {
     /**
      * Send a notification to the user when their booking status changes.
      */
-    private void sendStatusNotification(String userId, BookingStatus status) {
+    private void sendStatusNotification(String userId, BookingStatus status, String reason) {
         String message;
         if (status == BookingStatus.APPROVED) {
             message = "Your booking has been approved";
         } else {
             message = "Your booking has been rejected";
+        }
+
+        if (reason != null && !reason.isBlank()) {
+            message = message + ": " + reason;
         }
 
         CreateNotificationRequest notificationRequest = new CreateNotificationRequest(
@@ -249,8 +273,10 @@ public class BookingService {
     }
 
     private void sendNewBookingNotificationToAdmins(Booking booking) {
+        String requesterName = resolveUserName(booking.getUserId());
         String message = String.format(
-                "New booking request for %s on %s (%s-%s)",
+            "New booking request from %s for %s on %s (%s-%s)",
+            requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
                 booking.getStartTime(),
@@ -260,9 +286,10 @@ public class BookingService {
     }
 
     private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
+        String requesterName = resolveUserName(booking.getUserId());
         String message = String.format(
-                "Booking %s was updated and requires re-approval (%s on %s, %s-%s)",
-                booking.getId(),
+            "Booking update from %s requires re-approval for %s on %s (%s-%s)",
+            requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
                 booking.getStartTime(),
@@ -275,7 +302,7 @@ public class BookingService {
      * Convert Booking entity to BookingDTO.
      */
     private BookingDTO toDTO(Booking booking) {
-        return new BookingDTO(
+        BookingDTO dto = new BookingDTO(
                 booking.getId(),
                 booking.getUserId(),
                 booking.getResourceId(),
@@ -287,5 +314,14 @@ public class BookingService {
                 booking.getStatus(),
                 booking.getCreatedAt()
         );
+        dto.setAdminReason(booking.getAdminReason());
+        dto.setUserName(resolveUserName(booking.getUserId()));
+        return dto;
+    }
+
+    private String resolveUserName(String userId) {
+        return userRepository.findById(userId)
+                .map(user -> user.getName() == null || user.getName().isBlank() ? user.getEmail() : user.getName())
+                .orElse(userId);
     }
 }

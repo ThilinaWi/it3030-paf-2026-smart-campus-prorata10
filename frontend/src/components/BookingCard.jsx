@@ -3,7 +3,7 @@ import { HiOutlineCalendar, HiOutlineClock, HiOutlineUsers, HiOutlineLocationMar
 /**
  * Individual booking card displaying booking details and actions.
  */
-export default function BookingCard({ booking, onCancel, onEdit, onApprove, onReject, isAdmin }) {
+export default function BookingCard({ booking, onCancel, onEdit, onApprove, onReject, isAdmin, processingBookingId }) {
   const statusConfig = {
     PENDING: { label: 'Pending', className: 'status-pending' },
     APPROVED: { label: 'Approved', className: 'status-approved' },
@@ -12,6 +12,7 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
   };
 
   const status = statusConfig[booking.status] || statusConfig.PENDING;
+  const isProcessingThisBooking = processingBookingId === booking.id;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -69,7 +70,15 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
           <HiOutlineUsers size={16} />
           <span>{booking.attendees?.length || 0} attendee(s)</span>
         </div>
+        {isAdmin && (
+          <p className="booking-requester">
+            Requested by: <strong>{booking.userName || booking.userId || 'Unknown user'}</strong>
+          </p>
+        )}
         <p className="booking-purpose">{booking.purpose}</p>
+        {booking.adminReason && (
+          <p className="booking-admin-reason">Decision reason: {booking.adminReason}</p>
+        )}
       </div>
 
       <div className="booking-card-footer">
@@ -82,13 +91,15 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
                 className="btn btn-approve"
                 onClick={() => onApprove(booking.id)}
                 id={`approve-${booking.id}`}
+                disabled={isProcessingThisBooking}
               >
-                Approve
+                {isProcessingThisBooking ? 'Approving...' : 'Approve'}
               </button>
               <button
                 className="btn btn-reject"
                 onClick={() => onReject(booking.id)}
                 id={`reject-${booking.id}`}
+                disabled={isProcessingThisBooking}
               >
                 Reject
               </button>

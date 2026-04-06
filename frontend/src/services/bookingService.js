@@ -36,10 +36,13 @@ const bookingService = {
 
   /**
    * Get all bookings (admin only).
+   * @param {string} status - Optional status filter
    * @returns {Promise<Array>} List of all bookings
    */
-  getAllBookings: async () => {
-    const response = await api.get('/bookings');
+  getAllBookings: async (status) => {
+    const response = await api.get('/bookings', {
+      params: status && status !== 'ALL' ? { status } : {},
+    });
     return response.data;
   },
 
@@ -47,10 +50,11 @@ const bookingService = {
    * Update booking status (admin only).
    * @param {string} id - Booking ID
    * @param {string} status - New status (APPROVED/REJECTED)
+   * @param {string} reason - Decision reason
    * @returns {Promise<object>} Updated booking
    */
-  updateBookingStatus: async (id, status) => {
-    const response = await api.patch(`/bookings/${id}/status`, { status });
+  updateBookingStatus: async (id, status, reason) => {
+    const response = await api.patch(`/bookings/${id}/status`, { status, reason });
     return response.data;
   },
 

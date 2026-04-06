@@ -36,6 +36,8 @@ public class Booking {
 
     private BookingStatus status = BookingStatus.PENDING;
 
+    private String adminReason;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Booking() {}
@@ -82,6 +84,9 @@ public class Booking {
 
     public BookingStatus getStatus() { return status; }
     public void setStatus(BookingStatus status) { this.status = status; }
+
+    public String getAdminReason() { return adminReason; }
+    public void setAdminReason(String adminReason) { this.adminReason = adminReason; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

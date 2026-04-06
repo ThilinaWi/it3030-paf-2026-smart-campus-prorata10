@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useBookings } from '../hooks/useBookings';
 import BookingForm from '../components/BookingForm';
 import BookingCard from '../components/BookingCard';
@@ -14,6 +14,33 @@ export default function BookingsPage() {
   const [formError, setFormError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const [editingBooking, setEditingBooking] = useState(null);
+
+  useEffect(() => {
+    const pollInterval = window.setInterval(() => {
+      if (!showForm) {
+        refresh({ silent: true });
+      }
+    }, 8000);
+
+    const handleWindowFocus = () => {
+      refresh({ silent: true });
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        refresh({ silent: true });
+      }
+    };
+
+    window.addEventListener('focus', handleWindowFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(pollInterval);
+      window.removeEventListener('focus', handleWindowFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [showForm, refresh]);
 
   const handleSaveBooking = async (bookingData) => {
     try {

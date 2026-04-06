@@ -1,88 +1,127 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { HiOutlineHome, HiOutlineLogout, HiOutlineBell, HiOutlineCalendar } from 'react-icons/hi';
+import {
+  HiOutlineMenu,
+  HiOutlineX,
+  HiOutlineUserCircle,
+  HiOutlineLogout,
+} from 'react-icons/hi';
 import { useAuth } from '../hooks/useAuth';
 import NotificationPanel from './NotificationPanel';
 
 /**
- * Top navigation bar with user info, navigation links, and notification bell.
+ * Minimal top navbar with logo/user and a dedicated left sidebar for navigation.
  */
 export default function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!isAuthenticated) return null;
 
-  return (
-    <nav className="navbar" id="main-navbar">
-      <div className="navbar-container">
-        {/* Logo / Brand */}
-        <Link to="/dashboard" className="navbar-brand">
-          <span className="brand-icon">🏫</span>
-          <span className="brand-text">Smart Campus</span>
-        </Link>
+  const closeSidebar = () => setIsSidebarOpen(false);
 
-        {/* Navigation Links */}
-        <div className="navbar-links">
+  return (
+    <>
+      <nav className="navbar" id="main-navbar">
+        <div className="navbar-container">
+          <div className="navbar-top-row">
+            <button
+              type="button"
+              className="navbar-mobile-toggle"
+              onClick={() => setIsSidebarOpen((open) => !open)}
+              aria-label={isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isSidebarOpen}
+              aria-controls="app-sidebar"
+            >
+              {isSidebarOpen ? <HiOutlineX size={20} /> : <HiOutlineMenu size={20} />}
+            </button>
+
+            <Link to="/dashboard" className="navbar-brand" onClick={closeSidebar}>
+              <span className="brand-icon">🏫</span>
+              <span className="brand-text">Smart Campus</span>
+            </Link>
+          </div>
+
+          <div className="navbar-right">
+            <NotificationPanel />
+            <div className="user-menu" title={user?.name || 'Logged in user'}>
+              {user?.profilePicture ? (
+                <img
+                  src={user.profilePicture}
+                  alt={user.name}
+                  className="user-avatar"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="user-avatar-fallback" aria-hidden="true">
+                  <HiOutlineUserCircle size={22} />
+                </span>
+              )}
+              <div className="user-info">
+                <span className="user-name">{user?.name || 'User'}</span>
+                <span className="user-role">{user?.role || 'USER'}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="logout-btn"
+              onClick={logout}
+              id="logout-btn"
+              title="Logout"
+              aria-label="Logout"
+            >
+              <HiOutlineLogout size={18} />
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {isSidebarOpen && <button className="sidebar-backdrop" onClick={closeSidebar} aria-label="Close sidebar" />}
+
+      <aside className={`app-sidebar ${isSidebarOpen ? 'open' : ''}`} id="app-sidebar">
+        <div className="navbar-links" id="navbar-links">
           <Link
             to="/dashboard"
             className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
             id="nav-dashboard"
+            onClick={closeSidebar}
           >
-            <HiOutlineHome size={18} />
             <span>Dashboard</span>
           </Link>
-          <Link
-            to="/notifications"
-            className={`nav-link ${location.pathname === '/notifications' ? 'active' : ''}`}
-            id="nav-notifications"
-          >
-            <HiOutlineBell size={18} />
-            <span>Notifications</span>
-          </Link>
-          <Link
-            to="/bookings"
-            className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}
-            id="nav-bookings"
-          >
-            <HiOutlineCalendar size={18} />
-            <span>Bookings</span>
-          </Link>
-          {user?.role === 'ADMIN' && (
+          {user?.role !== 'ADMIN' && (
             <Link
-              to="/admin/bookings"
-              className={`nav-link ${location.pathname === '/admin/bookings' ? 'active' : ''}`}
-              id="nav-admin-bookings"
+              to="/bookings"
+              className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}
+              id="nav-bookings"
+              onClick={closeSidebar}
             >
-              <HiOutlineCalendar size={18} />
-              <span>Admin Bookings</span>
+              <span>Bookings</span>
             </Link>
+          )}
+          {user?.role === 'ADMIN' && (
+            <>
+              <Link
+                to="/admin/bookings"
+                className={`nav-link nav-link-admin ${location.pathname === '/admin/bookings' ? 'active' : ''}`}
+                id="nav-admin-bookings"
+                onClick={closeSidebar}
+              >
+                <span>Admin Bookings</span>
+              </Link>
+              <Link
+                to="/admin/users"
+                className={`nav-link nav-link-admin ${location.pathname === '/admin/users' ? 'active' : ''}`}
+                id="nav-admin-users"
+                onClick={closeSidebar}
+              >
+                <span>Access Control</span>
+              </Link>
+            </>
           )}
         </div>
 
-        {/* Right Section */}
-        <div className="navbar-right">
-          <NotificationPanel />
-
-          <div className="user-menu">
-            {user?.profilePicture && (
-              <img
-                src={user.profilePicture}
-                alt={user.name}
-                className="user-avatar"
-                referrerPolicy="no-referrer"
-              />
-            )}
-            <div className="user-info">
-              <span className="user-name">{user?.name}</span>
-              <span className="user-role">{user?.role}</span>
-            </div>
-          </div>
-
-          <button className="logout-btn" onClick={logout} id="logout-btn" title="Logout">
-            <HiOutlineLogout size={20} />
-          </button>
-        </div>
-      </div>
-    </nav>
+      </aside>
+    </>
   );
 }
