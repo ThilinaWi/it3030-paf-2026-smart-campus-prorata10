@@ -273,8 +273,10 @@ public class BookingService {
     }
 
     private void sendNewBookingNotificationToAdmins(Booking booking) {
+        String requesterName = resolveUserName(booking.getUserId());
         String message = String.format(
-                "New booking request for %s on %s (%s-%s)",
+            "New booking request from %s for %s on %s (%s-%s)",
+            requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
                 booking.getStartTime(),
@@ -284,9 +286,10 @@ public class BookingService {
     }
 
     private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
+        String requesterName = resolveUserName(booking.getUserId());
         String message = String.format(
-                "Booking %s was updated and requires re-approval (%s on %s, %s-%s)",
-                booking.getId(),
+            "Booking update from %s requires re-approval for %s on %s (%s-%s)",
+            requesterName,
                 booking.getResourceId(),
                 booking.getDate(),
                 booking.getStartTime(),
