@@ -1,6 +1,7 @@
 package com.smartcampus.service;
 
 import com.smartcampus.model.enums.Role;
+import com.smartcampus.model.Resource;
 import com.smartcampus.repository.UserRepository;
 import com.smartcampus.model.dto.response.BookingDTO;
 import com.smartcampus.model.dto.request.CreateBookingRequest;
@@ -8,6 +9,7 @@ import com.smartcampus.model.dto.request.UpdateBookingRequest;
 import com.smartcampus.model.entity.Booking;
 import com.smartcampus.model.enums.BookingStatus;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
 import com.smartcampus.exception.ConflictException;
 import com.smartcampus.exception.ForbiddenOperationException;
 import com.smartcampus.exception.ResourceNotFoundException;
@@ -36,13 +38,16 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final NotificationService notificationService;
     private final UserRepository userRepository;
+    private final ResourceRepository resourceRepository;
 
     public BookingService(BookingRepository bookingRepository,
                           NotificationService notificationService,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          ResourceRepository resourceRepository) {
         this.bookingRepository = bookingRepository;
         this.notificationService = notificationService;
         this.userRepository = userRepository;
+        this.resourceRepository = resourceRepository;
     }
 
     /**
@@ -53,6 +58,8 @@ public class BookingService {
         if (!request.getStartTime().isBefore(request.getEndTime())) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
+
+        validateResourceIsBookable(request.getResourceId());
 
         // Check for scheduling conflicts
         checkForConflicts(
@@ -98,6 +105,8 @@ public class BookingService {
         if (!request.getStartTime().isBefore(request.getEndTime())) {
             throw new IllegalArgumentException("Start time must be before end time");
         }
+
+        validateResourceIsBookable(request.getResourceId());
 
         checkForConflicts(
                 request.getResourceId(),
@@ -218,6 +227,48 @@ public class BookingService {
         Booking updated = bookingRepository.save(booking);
         log.info("Booking {} cancelled by user {}", bookingId, userId);
         return toDTO(updated);
+    }
+
+    public boolean isResourceAvailable(
+            String resourceId,
+            java.time.LocalDate date,
+            java.time.LocalTime startTime,
+            java.time.LocalTime endTime,
+            String excludedBookingId
+    ) {
+        if (!startTime.isBefore(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+
+        validateResourceIsBookable(resourceId);
+
+        List<BookingStatus> activeStatuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED);
+        List<Booking> existingBookings = bookingRepository
+                .findByResourceIdAndDateAndStatusIn(resourceId, date, activeStatuses);
+
+        for (Booking existing : existingBookings) {
+            if (excludedBookingId != null && excludedBookingId.equals(existing.getId())) {
+                continue;
+            }
+
+            boolean hasConflict = startTime.isBefore(existing.getEndTime())
+                    && endTime.isAfter(existing.getStartTime());
+
+            if (hasConflict) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void validateResourceIsBookable(String resourceId) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Resource", "id", resourceId));
+
+        if (!resource.isActive()) {
+            throw new IllegalArgumentException("Selected resource is inactive and cannot be booked");
+        }
     }
 
     /**

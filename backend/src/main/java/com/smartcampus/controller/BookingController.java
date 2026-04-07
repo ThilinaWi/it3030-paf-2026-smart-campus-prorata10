@@ -12,8 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -63,6 +67,27 @@ public class BookingController {
             @AuthenticationPrincipal User user) {
         List<BookingDTO> bookings = bookingService.getUserBookings(user.getId());
         return ResponseEntity.ok(bookings);
+    }
+
+    @GetMapping("/check-availability")
+    public ResponseEntity<Map<String, Object>> checkAvailability(
+            @RequestParam String resourceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime endTime,
+            @RequestParam(required = false) String excludeBookingId) {
+        if (!startTime.isBefore(endTime)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "available", false,
+                "message", "Start time must be before end time"
+            ));
+        }
+
+        boolean available = bookingService.isResourceAvailable(resourceId, date, startTime, endTime, excludeBookingId);
+        String message = available
+                ? "Resource is available for the selected time"
+                : "Selected time slot conflicts with an existing booking";
+        return ResponseEntity.ok(Map.of("available", available, "message", message));
     }
 
     /**

@@ -58,6 +58,15 @@ const bookingService = {
     return response.data;
   },
 
+  checkAvailability: async ({ resourceId, date, startTime, endTime, excludeBookingId }) => {
+    const params = { resourceId, date, startTime, endTime };
+    if (excludeBookingId) {
+      params.excludeBookingId = excludeBookingId;
+    }
+    const response = await api.get('/bookings/check-availability', { params });
+    return response.data;
+  },
+
   /**
    * Cancel a booking (user only).
    * @param {string} id - Booking ID

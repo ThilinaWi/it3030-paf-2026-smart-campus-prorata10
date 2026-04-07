@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 const ResourceSearch = ({ onSearch, onClear }) => {
     const [filters, setFilters] = useState({
+        name: '',
         type: '',
         minCapacity: '',
         location: '',
-        searchTerm: '',
     });
 
     const handleChange = (e) => {
@@ -21,7 +21,7 @@ const ResourceSearch = ({ onSearch, onClear }) => {
     };
 
     const handleClear = () => {
-        const emptyFilters = { type: '', minCapacity: '', location: '', searchTerm: '' };
+        const emptyFilters = { name: '', type: '', minCapacity: '', location: '' };
         setFilters(emptyFilters);
         onClear();
     };
@@ -35,8 +35,8 @@ const ResourceSearch = ({ onSearch, onClear }) => {
                         <label>🔎 Name</label>
                         <input
                             type="text"
-                            name="searchTerm"
-                            value={filters.searchTerm}
+                            name="name"
+                            value={filters.name}
                             onChange={handleChange}
                             placeholder="Enter resource name..."
                             style={styles.input}
