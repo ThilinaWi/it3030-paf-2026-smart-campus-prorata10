@@ -99,6 +99,14 @@ export default function Navbar() {
               <span>Bookings</span>
             </Link>
           )}
+          <Link
+            to="/resources"
+            className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
+            id="nav-resources"
+            onClick={closeSidebar}
+          >
+            <span>Resource</span>
+          </Link>
           {user?.role === 'ADMIN' && (
             <>
               <Link

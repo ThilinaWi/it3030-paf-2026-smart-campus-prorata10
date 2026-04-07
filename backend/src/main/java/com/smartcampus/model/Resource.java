@@ -1,14 +1,13 @@
 package com.smartcampus.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "resources")
+@Document(collection = "resources")
 public class Resource {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     
     private String name;

@@ -6,6 +6,9 @@ import NotificationsPage from '../pages/NotificationsPage';
 import BookingsPage from '../pages/BookingsPage';
 import AdminBookingsPage from '../pages/AdminBookingsPage';
 import AdminUsersPage from '../pages/AdminUsersPage';
+import ResourceList from '../components/resources/ResourceList';
+import ResourceDetail from '../components/resources/ResourceDetail';
+import ResourceForm from '../components/resources/ResourceForm';
 
 /**
  * Application route definitions.
@@ -54,6 +57,38 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminUsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources"
+        element={
+          <ProtectedRoute>
+            <ResourceList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/:id"
+        element={
+          <ProtectedRoute>
+            <ResourceDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/create"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+            <ResourceForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/edit/:id"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+            <ResourceForm />
           </ProtectedRoute>
         }
       />

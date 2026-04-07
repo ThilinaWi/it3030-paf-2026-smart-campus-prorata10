@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ResourceServiceImpl implements ResourceService {
@@ -82,15 +83,22 @@ public class ResourceServiceImpl implements ResourceService {
     
     @Override
     public List<ResourceDTO> searchResources(String type, Integer minCapacity, String location, String searchTerm) {
-        List<Resource> resources = resourceRepository.searchResources(type, minCapacity, location);
+        List<Resource> resources = resourceRepository.findAll();
         List<ResourceDTO> dtos = new ArrayList<>();
+        String normalizedType = type != null ? type.trim().toLowerCase(Locale.ROOT) : null;
+        String normalizedLocation = location != null ? location.trim().toLowerCase(Locale.ROOT) : null;
+        String normalizedSearch = searchTerm != null ? searchTerm.trim().toLowerCase(Locale.ROOT) : null;
         
         for (Resource resource : resources) {
-            if (searchTerm != null && !searchTerm.isEmpty()) {
-                if (resource.getName() != null && resource.getName().toLowerCase().contains(searchTerm.toLowerCase())) {
-                    dtos.add(convertToDTO(resource));
-                }
-            } else {
+            boolean matchesType = normalizedType == null || normalizedType.isEmpty()
+                    || (resource.getType() != null && resource.getType().toLowerCase(Locale.ROOT).equals(normalizedType));
+            boolean matchesCapacity = minCapacity == null || (resource.getCapacity() != null && resource.getCapacity() >= minCapacity);
+            boolean matchesLocation = normalizedLocation == null || normalizedLocation.isEmpty()
+                    || (resource.getLocation() != null && resource.getLocation().toLowerCase(Locale.ROOT).contains(normalizedLocation));
+            boolean matchesSearch = normalizedSearch == null || normalizedSearch.isEmpty()
+                    || (resource.getName() != null && resource.getName().toLowerCase(Locale.ROOT).contains(normalizedSearch));
+
+            if (matchesType && matchesCapacity && matchesLocation && matchesSearch) {
                 dtos.add(convertToDTO(resource));
             }
         }
