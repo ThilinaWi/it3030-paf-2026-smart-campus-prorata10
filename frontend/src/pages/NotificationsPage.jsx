@@ -6,7 +6,10 @@ import { HiOutlineBell, HiOutlineRefresh } from 'react-icons/hi';
  * Full notifications page showing all user notifications.
  */
 export default function NotificationsPage() {
-  const { notifications, unreadCount, loading, refresh, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, loading, refresh, markAsRead, markAllAsRead } = useNotifications({
+    autoRefresh: true,
+    pollIntervalMs: 5000,
+  });
 
   return (
     <div className="notifications-page" id="notifications-page">

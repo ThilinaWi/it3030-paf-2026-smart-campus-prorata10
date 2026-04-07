@@ -11,7 +11,10 @@ export default function NotificationPanel() {
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef(null);
   const navigate = useNavigate();
-  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications({
+    autoRefresh: true,
+    pollIntervalMs: 5000,
+  });
 
   // Close panel when clicking outside
   useEffect(() => {

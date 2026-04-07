@@ -6,24 +6,21 @@ import Navbar from './components/Navbar';
 import AppRoutes from './routes/AppRoutes';
 import './App.css';
 
-/**
- * Root application component.
- */
 function App() {
-  return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <BrowserRouter>
-        <AuthProvider>
-          <div className="app" id="app-root">
-            <Navbar />
-            <main className="main-content">
-              <AppRoutes />
-            </main>
-          </div>
-        </AuthProvider>
-      </BrowserRouter>
-    </GoogleOAuthProvider>
-  );
+    return (
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+            <BrowserRouter>
+                <AuthProvider>
+                    <div className="app" id="app-root">
+                        <Navbar />
+                        <main className="main-content">
+                            <AppRoutes />
+                        </main>
+                    </div>
+                </AuthProvider>
+            </BrowserRouter>
+        </GoogleOAuthProvider>
+    );
 }
 
 export default App;

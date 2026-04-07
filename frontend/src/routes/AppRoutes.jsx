@@ -3,6 +3,12 @@ import ProtectedRoute from '../components/ProtectedRoute';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import NotificationsPage from '../pages/NotificationsPage';
+import BookingsPage from '../pages/BookingsPage';
+import AdminBookingsPage from '../pages/AdminBookingsPage';
+import AdminUsersPage from '../pages/AdminUsersPage';
+import ResourceList from '../components/resources/ResourceList';
+import ResourceDetail from '../components/resources/ResourceDetail';
+import ResourceForm from '../components/resources/ResourceForm';
 
 /**
  * Application route definitions.
@@ -27,6 +33,62 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute allowedRoles={['USER', 'TECHNICIAN']}>
+            <BookingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/bookings"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminBookingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminUsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources"
+        element={
+          <ProtectedRoute>
+            <ResourceList />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/:id"
+        element={
+          <ProtectedRoute>
+            <ResourceDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/create"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+            <ResourceForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/resources/edit/:id"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+            <ResourceForm />
           </ProtectedRoute>
         }
       />
