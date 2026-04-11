@@ -41,6 +41,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
+    
     /**
      * Update an existing booking (USER only, must own booking).
      * PUT /api/bookings/{id}
