@@ -30,7 +30,7 @@ public class BookingController {
     }
 
     /**
-     * Create a new booking (default status = PENDING).
+     * Create a new booking (default status = PENDING)..
      * POST /api/bookings
      */
     @PostMapping
