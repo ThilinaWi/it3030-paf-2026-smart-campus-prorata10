@@ -171,6 +171,7 @@ const styles = {
         borderRadius: '12px',
         color: '#7f8c8d',
     },
+    
 };
 
 export default ResourceList;
