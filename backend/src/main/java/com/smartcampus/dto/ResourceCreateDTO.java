@@ -37,6 +37,7 @@ public class ResourceCreateDTO {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getAvailabilityWindow() { return availabilityWindow; }
     public void setAvailabilityWindow(String availabilityWindow) { this.availabilityWindow = availabilityWindow;
-        
+
      }
+     
 }
