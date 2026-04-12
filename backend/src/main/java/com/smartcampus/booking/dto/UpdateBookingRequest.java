@@ -10,7 +10,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 /**
- * DTO for updating an existing booking.
+ * DTO for updating an existing booking...
  */
 public class UpdateBookingRequest {
 
