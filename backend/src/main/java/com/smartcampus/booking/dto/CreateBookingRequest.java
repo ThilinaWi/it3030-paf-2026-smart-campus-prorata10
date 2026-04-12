@@ -7,7 +7,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 /**
- * DTO for creating a new booking request.
+ * DTO for creating a new booking request...
  */
 public class CreateBookingRequest {
 
