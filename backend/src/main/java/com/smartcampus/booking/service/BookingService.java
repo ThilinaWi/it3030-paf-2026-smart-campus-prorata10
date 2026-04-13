@@ -82,9 +82,9 @@ public class BookingService {
         return toDTO(saved);
     }
 
-    
+
     /**
-     * Update an existing booking for the owner when booking is still editable.
+     * Update an existing booking for the owner when booking is still editable...
      */
     public BookingDTO updateBooking(String bookingId, String userId, UpdateBookingRequest request) {
         Booking booking = bookingRepository.findById(bookingId)
