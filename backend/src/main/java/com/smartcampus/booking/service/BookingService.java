@@ -46,6 +46,7 @@ public class BookingService {
         this.userRepository = userRepository;
     }
 
+    
     /**
      * Create a new booking after validating time constraints and checking for conflicts.
      */
