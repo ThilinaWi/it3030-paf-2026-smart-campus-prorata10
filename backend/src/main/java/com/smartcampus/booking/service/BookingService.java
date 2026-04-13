@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
  * Service handling booking business logic including conflict detection,
  * status workflow management, and notification integration.
