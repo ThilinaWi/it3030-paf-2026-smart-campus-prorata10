@@ -2,6 +2,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
+
 /**
  * Google Sign-In button component.
  * On success, exchanges the Google credential for a JWT via the backend.
