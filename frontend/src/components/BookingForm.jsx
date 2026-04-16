@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { HiOutlineCalendar, HiOutlineClock, HiOutlineUsers, HiOutlineClipboardList } from 'react-icons/hi';
 
+
 /**
  * Booking creation form with validation.
  */
