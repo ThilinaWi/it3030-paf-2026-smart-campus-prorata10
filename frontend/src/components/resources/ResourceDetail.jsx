@@ -165,8 +165,9 @@ const styles = {
         maxWidth: '900px',
         margin: '0 auto',
         padding: '2rem',
-        
+
     },
+    
     card: {
         backgroundColor: 'white',
         borderRadius: '12px',
