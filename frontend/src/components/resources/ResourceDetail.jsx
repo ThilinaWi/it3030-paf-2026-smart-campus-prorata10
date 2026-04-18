@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { resourceApi } from '../../services/api';
+import bookingService from '../../services/bookingService';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useAuth } from '../../hooks/useAuth';
 
 const ResourceDetail = () => {
+    const { user } = useAuth();
     const { id } = useParams();
     const navigate = useNavigate();
     const [resource, setResource] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [previewDate, setPreviewDate] = useState('');
+    const [previewStartTime, setPreviewStartTime] = useState('');
+    const [previewEndTime, setPreviewEndTime] = useState('');
+    const [previewLoading, setPreviewLoading] = useState(false);
+    const [previewResult, setPreviewResult] = useState(null);
 
     useEffect(() => {
         fetchResource();
@@ -31,6 +39,28 @@ const ResourceDetail = () => {
             case 'OUT_OF_SERVICE': return '#e74c3c';
             case 'MAINTENANCE': return '#f39c12';
             default: return '#95a5a6';
+        }
+    };
+
+    const handlePreviewAvailability = async () => {
+        if (!previewDate || !previewStartTime || !previewEndTime) {
+            setPreviewResult({ available: false, message: 'Select date and time range first' });
+            return;
+        }
+
+        try {
+            setPreviewLoading(true);
+            const result = await bookingService.checkAvailability({
+                resourceId: resource.id,
+                date: previewDate,
+                startTime: `${previewStartTime}:00`,
+                endTime: `${previewEndTime}:00`,
+            });
+            setPreviewResult(result);
+        } catch (err) {
+            setPreviewResult({ available: false, message: 'Failed to check availability' });
+        } finally {
+            setPreviewLoading(false);
         }
     };
 
@@ -78,6 +108,23 @@ const ResourceDetail = () => {
                             <strong>🕐 Availability:</strong> {resource.availabilityWindow}
                         </div>
                     )}
+
+                    <div style={styles.detailItem}>
+                        <strong>📆 Availability Preview:</strong>
+                        <div style={styles.previewRow}>
+                            <input type="date" value={previewDate} onChange={(e) => setPreviewDate(e.target.value)} style={styles.input} />
+                            <input type="time" value={previewStartTime} onChange={(e) => setPreviewStartTime(e.target.value)} style={styles.input} />
+                            <input type="time" value={previewEndTime} onChange={(e) => setPreviewEndTime(e.target.value)} style={styles.input} />
+                            <button type="button" onClick={handlePreviewAvailability} style={{...styles.button, backgroundColor: '#2563eb'}} disabled={previewLoading}>
+                                {previewLoading ? 'Checking...' : 'Check'}
+                            </button>
+                        </div>
+                        {previewResult && (
+                            <p style={{ color: previewResult.available ? '#16a34a' : '#dc2626', marginTop: '0.5rem' }}>
+                                {previewResult.message}
+                            </p>
+                        )}
+                    </div>
                     
                     {resource.imageUrl && (
                         <div style={styles.detailItem}>
@@ -97,9 +144,11 @@ const ResourceDetail = () => {
                 </div>
                 
                 <div style={styles.actions}>
-                    <Link to={`/resources/edit/${resource.id}`} style={{...styles.button, backgroundColor: '#f39c12', textDecoration: 'none'}}>
-                        ✏️ Edit Resource
-                    </Link>
+                    {user?.role === 'ADMIN' && (
+                        <Link to={`/resources/edit/${resource.id}`} style={{...styles.button, backgroundColor: '#f39c12', textDecoration: 'none'}}>
+                            ✏️ Edit Resource
+                        </Link>
+                    )}
                 </div>
             </div>
         </div>
@@ -160,6 +209,20 @@ const styles = {
         maxHeight: '300px',
         marginTop: '0.5rem',
         borderRadius: '8px',
+    },
+    previewRow: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr auto',
+        gap: '0.5rem',
+        marginTop: '0.5rem',
+        alignItems: 'center',
+    },
+    input: {
+        width: '100%',
+        padding: '0.5rem',
+        border: '1px solid #ddd',
+        borderRadius: '6px',
+        fontSize: '14px',
     },
     actions: {
         display: 'flex',

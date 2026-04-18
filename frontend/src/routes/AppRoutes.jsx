@@ -79,7 +79,7 @@ export default function AppRoutes() {
       <Route
         path="/resources/create"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+          <ProtectedRoute allowedRoles={['ADMIN']}>
             <ResourceForm />
           </ProtectedRoute>
         }
@@ -87,7 +87,7 @@ export default function AppRoutes() {
       <Route
         path="/resources/edit/:id"
         element={
-          <ProtectedRoute allowedRoles={['ADMIN', 'TECHNICIAN']}>
+          <ProtectedRoute allowedRoles={['ADMIN']}>
             <ResourceForm />
           </ProtectedRoute>
         }

@@ -9,6 +9,7 @@ public class ResourceDTO {
     private Integer capacity;
     private String location;
     private String status;
+    private Boolean isActive;
     private String description;
     private String imageUrl;
     private String availabilityWindow;
@@ -29,6 +30,8 @@ public class ResourceDTO {
     public void setLocation(String location) { this.location = location; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public Boolean getIsActive() { return isActive; }
+    public void setIsActive(Boolean active) { isActive = active; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public String getImageUrl() { return imageUrl; }

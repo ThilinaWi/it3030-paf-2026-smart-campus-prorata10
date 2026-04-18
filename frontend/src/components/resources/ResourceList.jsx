@@ -4,24 +4,28 @@ import { resourceApi } from '../../services/api';
 import ResourceCard from './ResourceCard';
 import ResourceSearch from './ResourceSearch';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { useAuth } from '../../hooks/useAuth';
 
 const ResourceList = () => {
+    const { user } = useAuth();
     const [resources, setResources] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const isAdmin = user?.role === 'ADMIN';
 
     useEffect(() => {
         fetchResources();
     }, []);
 
-    const fetchResources = async () => {
+    const fetchResources = async (filters = {}) => {
         try {
             setLoading(true);
-            const response = await resourceApi.getAll();
+            const response = await resourceApi.getAll(filters);
             setResources(response.data);
             setError(null);
         } catch (err) {
-            setError('❌ Failed to load resources. Make sure backend is running on port 8080');
+            setError('❌ Failed to load resources. Please try again.');
             console.error(err);
         } finally {
             setLoading(false);
@@ -35,7 +39,7 @@ const ResourceList = () => {
             setResources(response.data);
             setError(null);
         } catch (err) {
-            setError('❌ Search failed');
+            setError('❌ Search failed. Please check your filters and try again.');
         } finally {
             setLoading(false);
         }
@@ -54,6 +58,15 @@ const ResourceList = () => {
             } catch (err) {
                 alert('❌ Failed to delete resource');
             }
+        }
+    };
+
+    const handleToggleStatus = async (id, currentActive) => {
+        try {
+            await resourceApi.updateStatus(id, !currentActive);
+            await fetchResources();
+        } catch (err) {
+            alert('❌ Failed to update resource status');
         }
     };
 
@@ -76,15 +89,16 @@ const ResourceList = () => {
             
             <div style={styles.stats}>
                 <span>📊 Found {resources.length} resource(s)</span>
-                <Link to="/resources/create" style={styles.addButton}>
-                    ➕ Add New Resource
-                </Link>
+                {isAdmin && (
+                    <Link to="/resources/create" style={styles.addButton}>
+                        ➕ Add Resource
+                    </Link>
+                )}
             </div>
             
             {resources.length === 0 ? (
                 <div style={styles.empty}>
-                    <p>📭 No resources found.</p>
-                    <p>Click <strong>"Add New Resource"</strong> to create one!</p>
+                    <p>❌ No resources found</p>
                 </div>
             ) : (
                 <div style={styles.grid}>
@@ -92,7 +106,9 @@ const ResourceList = () => {
                         <ResourceCard 
                             key={resource.id} 
                             resource={resource} 
+                            isAdmin={isAdmin}
                             onDelete={handleDelete}
+                            onToggleStatus={handleToggleStatus}
                         />
                     ))}
                 </div>

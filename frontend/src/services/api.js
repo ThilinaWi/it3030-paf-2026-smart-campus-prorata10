@@ -21,18 +21,19 @@ api.interceptors.request.use((config) => {
 });
 
 export const resourceApi = {
-  getAll: () => api.get('/resources'),
+  getAll: (filters = {}) => api.get('/resources', { params: filters }),
   getById: (id) => api.get(`/resources/${id}`),
   create: (resource) => api.post('/resources', resource),
   update: (id, resource) => api.put(`/resources/${id}`, resource),
+  updateStatus: (id, isActive) => api.put(`/resources/${id}/status`, { isActive }),
   delete: (id) => api.delete(`/resources/${id}`),
   search: (filters) => {
-    const params = new URLSearchParams();
-    if (filters.type) params.append('type', filters.type);
-    if (filters.minCapacity) params.append('minCapacity', filters.minCapacity);
-    if (filters.location) params.append('location', filters.location);
-    if (filters.searchTerm) params.append('searchTerm', filters.searchTerm);
-    return api.get(`/resources/search?${params.toString()}`);
+    const params = {};
+    if (filters.name) params.name = filters.name;
+    if (filters.type) params.type = filters.type;
+    if (filters.minCapacity) params.minCapacity = filters.minCapacity;
+    if (filters.location) params.location = filters.location;
+    return api.get('/resources', { params });
   },
 };
 

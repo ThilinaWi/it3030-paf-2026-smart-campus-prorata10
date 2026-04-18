@@ -1,13 +1,14 @@
 package com.smartcampus.dto;
 
+import com.smartcampus.model.enums.ResourceType;
 import jakarta.validation.constraints.*;
 
 public class ResourceCreateDTO {
     @NotBlank(message = "Name is required")
     private String name;
     
-    @NotBlank(message = "Type is required")
-    private String type;
+    @NotNull(message = "Type is required")
+    private ResourceType type;
     
     @NotNull(message = "Capacity is required")
     @Min(1)
@@ -24,8 +25,8 @@ public class ResourceCreateDTO {
     
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public ResourceType getType() { return type; }
+    public void setType(ResourceType type) { this.type = type; }
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
     public String getLocation() { return location; }
