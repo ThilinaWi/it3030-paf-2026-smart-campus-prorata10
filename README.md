@@ -16,6 +16,54 @@ PAF assignment 2026-Smart campus
 - Frontend: React
 - Database: (MongoDB)
 
+## Incident Management APIs
+
+The backend now includes an Incident Management module with ticket workflows, attachments, and technician updates.
+
+### Ticket Status Workflow
+- OPEN (on create)
+- ASSIGNED (admin assigns technician)
+- IN_PROGRESS (technician starts work)
+- RESOLVED (technician fixes issue)
+- CLOSED (optional final closure)
+
+### Role-Based Endpoints
+
+USER:
+- POST /api/tickets
+- GET /api/tickets/my
+- GET /api/tickets/{id}
+- POST /api/tickets/{id}/attachments
+
+ADMIN:
+- GET /api/tickets/all
+- PATCH /api/tickets/{id}/assign
+
+TECHNICIAN:
+- GET /api/tickets/assigned
+- PATCH /api/tickets/{id}/status
+- POST /api/tickets/{id}/updates
+
+Shared:
+- GET /api/tickets/{id}/updates
+
+### Attachments
+- Upload endpoint accepts multipart file under key file
+- Max file size: 5MB
+- Files stored locally under /uploads
+
+### Notifications
+- Ticket creation: notifies ADMIN users
+- Technician assignment: notifies assigned TECHNICIAN
+- Technician update message: notifies ticket owner
+- Status RESOLVED: notifies ticket owner with clear status text
+- Status CLOSED: notifies ticket owner with clear status text
+
+### Postman Collection
+- Updated collection file: docs/postman/SmartCampus.postman_collection.json
+- New folder added: Incident Tickets
+- Collection variables added: ticketId, technicianId
+
 ## Setup Instructions
 
 ### Prerequisites

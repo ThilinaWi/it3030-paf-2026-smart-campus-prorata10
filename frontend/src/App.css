@@ -1109,6 +1109,250 @@
   background: #dc2626;
 }
 
+/* ===================== INCIDENTS MODULE ===================== */
+.incident-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.incident-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.incident-badge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.incident-category-chip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  background: #f1f5f9;
+  color: var(--gray-700);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.incident-priority-chip {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+.incident-priority-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.incident-priority-medium {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.incident-priority-low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.booking-status-badge.incident-status-open {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.booking-status-badge.incident-status-assigned {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.booking-status-badge.incident-status-in-progress {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.booking-status-badge.incident-status-resolved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.booking-status-badge.incident-status-closed {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.incident-assign-inline {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.incident-assign-inline .role-select {
+  max-width: 190px;
+}
+
+.incident-detail-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray-100);
+  overflow: hidden;
+}
+
+.incident-detail-grid {
+  margin-bottom: var(--space-3);
+}
+
+.incident-attachment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.incident-attachment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: var(--gray-50);
+  padding: var(--space-2) var(--space-3);
+}
+
+.incident-attachment-name {
+  color: var(--gray-800);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.incident-attachment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.incident-updates-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.incident-update-item {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: var(--gray-50);
+  padding: var(--space-3);
+}
+
+.incident-update-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--gray-500);
+}
+
+.incident-update-author {
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.incident-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  position: relative;
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.timeline-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.timeline-content {
+  flex: 1;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: var(--gray-50);
+  padding: var(--space-3);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.timeline-header strong {
+  color: var(--gray-800);
+}
+
+.timeline-label {
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+
+.timeline-content p {
+  margin: 0 0 var(--space-1);
+  color: var(--gray-700);
+}
+
+.timeline-content small {
+  color: var(--gray-500);
+}
+
+.timeline-created {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.timeline-assigned {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.timeline-status {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.timeline-closed {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.timeline-comment {
+  background: #dcfce7;
+  color: #166534;
+}
+
 /* ===================== BOOKING FORM MODAL ===================== */
 .booking-form-overlay {
   position: fixed;

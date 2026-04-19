@@ -1,3 +1,5 @@
+
+
 package com.smartcampus.security;
 
 import org.springframework.context.annotation.Bean;

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.*;
 
 public class ResourceCreateDTO {
     @NotBlank(message = "Name is required")
+    @Size(min = 3, max = 120, message = "Name must be between 3 and 120 characters")
     private String name;
     
     @NotNull(message = "Type is required")
@@ -15,10 +16,14 @@ public class ResourceCreateDTO {
     private Integer capacity;
     
     @NotBlank(message = "Location is required")
+    @Size(min = 2, max = 120, message = "Location must be between 2 and 120 characters")
     private String location;
     
+    @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
     private String imageUrl;
+
+    @Size(max = 120, message = "Availability window must be at most 120 characters")
     private String availabilityWindow;
     
     public ResourceCreateDTO() {}
