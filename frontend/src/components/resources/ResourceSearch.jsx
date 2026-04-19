@@ -24,6 +24,7 @@ const ResourceSearch = ({ onSearch, onClear }) => {
         const emptyFilters = { name: '', type: '', minCapacity: '', location: '' };
         setFilters(emptyFilters);
         onClear();
+        
     };
 
     return (
