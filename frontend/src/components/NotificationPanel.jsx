@@ -4,6 +4,7 @@ import { HiOutlineBell } from 'react-icons/hi';
 import { useNotifications } from '../hooks/useNotifications';
 import NotificationItem from './NotificationItem';
 
+
 /**
  * Notification bell icon with dropdown panel showing recent notifications.
  */
