@@ -2,6 +2,7 @@ package com.smartcampus.booking.service;
 
 import com.smartcampus.exception.ConflictException;
 import com.smartcampus.exception.ForbiddenOperationException;
+import com.smartcampus.model.Resource;
 import com.smartcampus.model.dto.request.CreateBookingRequest;
 import com.smartcampus.model.dto.request.UpdateBookingRequest;
 import com.smartcampus.model.dto.response.BookingDTO;
@@ -10,6 +11,7 @@ import com.smartcampus.model.enums.BookingStatus;
 import com.smartcampus.model.enums.NotificationType;
 import com.smartcampus.model.enums.Role;
 import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
 import com.smartcampus.repository.UserRepository;
 import com.smartcampus.service.BookingService;
 import com.smartcampus.service.NotificationService;
@@ -51,6 +53,9 @@ class BookingServiceTest {
         @Mock
         private UserRepository userRepository;
 
+        @Mock
+        private ResourceRepository resourceRepository;
+
     @InjectMocks
     private BookingService bookingService;
 
@@ -58,7 +63,14 @@ class BookingServiceTest {
 
     @BeforeEach
     void setUp() {
-                lenient().when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+        lenient().when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        Resource activeResource = new Resource();
+        activeResource.setId("room-101");
+        activeResource.setStatus("ACTIVE");
+        activeResource.setActive(true);
+
+        lenient().when(resourceRepository.findById(anyString())).thenReturn(Optional.of(activeResource));
 
         request = new CreateBookingRequest(
                 "room-101",

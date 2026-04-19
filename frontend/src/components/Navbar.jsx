@@ -99,6 +99,36 @@ export default function Navbar() {
               <span>Bookings</span>
             </Link>
           )}
+          {user?.role === 'USER' && (
+            <>
+              <Link
+                to="/incidents/my"
+                className={`nav-link ${location.pathname === '/incidents/my' ? 'active' : ''}`}
+                id="nav-my-incidents"
+                onClick={closeSidebar}
+              >
+                <span>My Incidents</span>
+              </Link>
+              <Link
+                to="/incidents/create"
+                className={`nav-link ${location.pathname === '/incidents/create' ? 'active' : ''}`}
+                id="nav-create-incident"
+                onClick={closeSidebar}
+              >
+                <span>Create Incident</span>
+              </Link>
+            </>
+          )}
+          {user?.role === 'TECHNICIAN' && (
+            <Link
+              to="/incidents/assigned"
+              className={`nav-link ${location.pathname === '/incidents/assigned' ? 'active' : ''}`}
+              id="nav-assigned-incidents"
+              onClick={closeSidebar}
+            >
+              <span>Assigned Incidents</span>
+            </Link>
+          )}
           <Link
             to="/resources"
             className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
@@ -116,6 +146,14 @@ export default function Navbar() {
                 onClick={closeSidebar}
               >
                 <span>Admin Bookings</span>
+              </Link>
+              <Link
+                to="/incidents/admin"
+                className={`nav-link nav-link-admin ${location.pathname === '/incidents/admin' ? 'active' : ''}`}
+                id="nav-admin-incidents"
+                onClick={closeSidebar}
+              >
+                <span>Admin Incidents</span>
               </Link>
               <Link
                 to="/admin/users"

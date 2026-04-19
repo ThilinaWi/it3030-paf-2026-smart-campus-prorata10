@@ -6,6 +6,11 @@ import NotificationsPage from '../pages/NotificationsPage';
 import BookingsPage from '../pages/BookingsPage';
 import AdminBookingsPage from '../pages/AdminBookingsPage';
 import AdminUsersPage from '../pages/AdminUsersPage';
+import CreateIncidentPage from '../pages/CreateIncidentPage';
+import MyIncidentsPage from '../pages/MyIncidentsPage';
+import AdminIncidentsPage from '../pages/AdminIncidentsPage';
+import TechnicianIncidentsPage from '../pages/TechnicianIncidentsPage';
+import IncidentDetailPage from '../pages/IncidentDetailPage';
 import ResourceList from '../components/resources/ResourceList';
 import ResourceDetail from '../components/resources/ResourceDetail';
 import ResourceForm from '../components/resources/ResourceForm';
@@ -57,6 +62,46 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={['ADMIN']}>
             <AdminUsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/create"
+        element={
+          <ProtectedRoute allowedRoles={['USER']}>
+            <CreateIncidentPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/my"
+        element={
+          <ProtectedRoute allowedRoles={['USER']}>
+            <MyIncidentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/admin"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
+            <AdminIncidentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/assigned"
+        element={
+          <ProtectedRoute allowedRoles={['TECHNICIAN']}>
+            <TechnicianIncidentsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/incidents/:id"
+        element={
+          <ProtectedRoute allowedRoles={['USER', 'ADMIN', 'TECHNICIAN']}>
+            <IncidentDetailPage />
           </ProtectedRoute>
         }
       />

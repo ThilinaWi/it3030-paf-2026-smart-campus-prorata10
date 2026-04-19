@@ -18,6 +18,7 @@ const ResourceForm = () => {
     
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
         if (isEdit) {
@@ -43,23 +44,89 @@ const ResourceForm = () => {
     };
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
+
+        if (fieldErrors[name]) {
+            setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const validateForm = () => {
+        const nextErrors = {};
+        const trimmedName = formData.name.trim();
+        const trimmedLocation = formData.location.trim();
+        const trimmedDescription = formData.description.trim();
+        const trimmedWindow = formData.availabilityWindow.trim();
+        const capacityNumber = Number(formData.capacity);
+
+        if (!trimmedName) {
+            nextErrors.name = 'Resource name is required';
+        } else if (trimmedName.length < 3) {
+            nextErrors.name = 'Resource name must be at least 3 characters';
+        } else if (trimmedName.length > 120) {
+            nextErrors.name = 'Resource name must be at most 120 characters';
+        }
+
+        if (!formData.type) {
+            nextErrors.type = 'Resource type is required';
+        }
+
+        if (!formData.capacity && formData.capacity !== 0) {
+            nextErrors.capacity = 'Capacity is required';
+        } else if (!Number.isInteger(capacityNumber) || capacityNumber < 1) {
+            nextErrors.capacity = 'Capacity must be a whole number greater than 0';
+        } else if (capacityNumber > 10000) {
+            nextErrors.capacity = 'Capacity must be 10000 or less';
+        }
+
+        if (!trimmedLocation) {
+            nextErrors.location = 'Location is required';
+        } else if (trimmedLocation.length < 2) {
+            nextErrors.location = 'Location must be at least 2 characters';
+        } else if (trimmedLocation.length > 120) {
+            nextErrors.location = 'Location must be at most 120 characters';
+        }
+
+        if (trimmedDescription.length > 500) {
+            nextErrors.description = 'Description must be at most 500 characters';
+        }
+
+        if (trimmedWindow.length > 120) {
+            nextErrors.availabilityWindow = 'Availability window must be at most 120 characters';
+        }
+
+        setFieldErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
         setError('');
 
+        const payload = {
+            ...formData,
+            name: formData.name.trim(),
+            location: formData.location.trim(),
+            description: formData.description.trim(),
+            availabilityWindow: formData.availabilityWindow.trim(),
+            capacity: Number(formData.capacity),
+        };
+
         try {
             if (isEdit) {
-                await resourceApi.update(id, formData);
+                await resourceApi.update(id, payload);
                 alert('✅ Resource updated successfully!');
             } else {
-                await resourceApi.create(formData);
+                await resourceApi.create(payload);
                 alert('✅ Resource created successfully!');
             }
             navigate('/resources');
@@ -79,7 +146,7 @@ const ResourceForm = () => {
                 
                 {error && <div style={styles.error}>{error}</div>}
                 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     <div style={styles.field}>
                         <label>Resource Name *</label>
                         <input
@@ -90,7 +157,9 @@ const ResourceForm = () => {
                             required
                             placeholder="e.g., Computer Lab A"
                             style={styles.input}
+                            className={fieldErrors.name ? 'input-error' : ''}
                         />
+                        {fieldErrors.name && <div className="field-error">{fieldErrors.name}</div>}
                     </div>
                     
                     <div style={styles.field}>
@@ -101,6 +170,7 @@ const ResourceForm = () => {
                             onChange={handleChange}
                             required
                             style={styles.input}
+                            className={fieldErrors.type ? 'input-error' : ''}
                         >
                             <option value="">Select Type</option>
                             <option value="LECTURE_HALL">Lecture Hall</option>
@@ -110,6 +180,7 @@ const ResourceForm = () => {
                             <option value="AUDITORIUM">Auditorium</option>
                             <option value="STUDY_ROOM">Study Room</option>
                         </select>
+                        {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
                     </div>
                     
                     <div style={styles.row}>
@@ -124,7 +195,9 @@ const ResourceForm = () => {
                                 min="1"
                                 placeholder="Number of people"
                                 style={styles.input}
+                                className={fieldErrors.capacity ? 'input-error' : ''}
                             />
+                            {fieldErrors.capacity && <div className="field-error">{fieldErrors.capacity}</div>}
                         </div>
                         
                         <div style={styles.field}>
@@ -137,7 +210,9 @@ const ResourceForm = () => {
                                 required
                                 placeholder="e.g., Building A, Floor 2"
                                 style={styles.input}
+                                className={fieldErrors.location ? 'input-error' : ''}
                             />
+                            {fieldErrors.location && <div className="field-error">{fieldErrors.location}</div>}
                         </div>
                     </div>
                     
@@ -150,7 +225,9 @@ const ResourceForm = () => {
                             rows="3"
                             placeholder="Describe the resource..."
                             style={styles.textarea}
+                            className={fieldErrors.description ? 'input-error' : ''}
                         />
+                        {fieldErrors.description && <div className="field-error">{fieldErrors.description}</div>}
                     </div>
                     
                     <div style={styles.field}>
@@ -162,7 +239,9 @@ const ResourceForm = () => {
                             onChange={handleChange}
                             placeholder="e.g., Mon-Fri 9AM-5PM"
                             style={styles.input}
+                            className={fieldErrors.availabilityWindow ? 'input-error' : ''}
                         />
+                        {fieldErrors.availabilityWindow && <div className="field-error">{fieldErrors.availabilityWindow}</div>}
                     </div>
                     
                     <div style={styles.buttons}>
