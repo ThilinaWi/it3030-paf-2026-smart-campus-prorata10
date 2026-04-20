@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
+import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import NotificationsPage from '../pages/NotificationsPage';
@@ -20,8 +21,10 @@ import ResourceForm from '../components/resources/ResourceForm';
  */
 export default function AppRoutes() {
   return (
+    
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
 
       {/* Protected Routes */}
