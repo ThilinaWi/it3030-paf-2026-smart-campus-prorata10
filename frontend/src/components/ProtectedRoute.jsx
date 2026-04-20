@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
+
 /**
  * Protected route wrapper — redirects unauthenticated users to login.
  * Optionally restricts access to specific roles.
