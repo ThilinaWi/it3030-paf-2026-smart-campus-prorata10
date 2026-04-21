@@ -20,6 +20,7 @@ import com.smartcampus.dto.response.TicketUpdateLogResponse;
 import com.smartcampus.model.entity.TicketHistoryEntry;
 import com.smartcampus.model.entity.Ticket;
 import com.smartcampus.model.entity.TicketUpdateLog;
+import com.smartcampus.model.enums.NotificationPreferenceCategory;
 import com.smartcampus.model.enums.TicketStatus;
 import com.smartcampus.repository.TicketRepository;
 import com.smartcampus.repository.TicketUpdateLogRepository;
@@ -80,7 +81,8 @@ public class TicketServiceImpl implements TicketService {
         notificationService.createNotificationsForRole(
                 Role.ADMIN,
                 NotificationType.ALERT,
-                "New incident ticket created: " + saved.getTitle()
+            "New incident ticket created: " + saved.getTitle(),
+            NotificationPreferenceCategory.SYSTEM
         );
 
         return toResponse(saved);
@@ -223,7 +225,8 @@ public class TicketServiceImpl implements TicketService {
         notificationService.createNotification(new CreateNotificationRequest(
                 technician.getId(),
                 NotificationType.INFO,
-                "You have been assigned incident ticket: " + saved.getTitle()
+            "You have been assigned incident ticket: " + saved.getTitle(),
+            NotificationPreferenceCategory.ASSIGNMENTS
         ));
 
         return toResponse(saved);
@@ -267,13 +270,15 @@ public class TicketServiceImpl implements TicketService {
             notificationService.createNotification(new CreateNotificationRequest(
                     saved.getUserId(),
                     NotificationType.INFO,
-                    "Incident ticket status updated to RESOLVED: " + saved.getTitle()
+                    "Incident ticket status updated to RESOLVED: " + saved.getTitle(),
+                    NotificationPreferenceCategory.STATUS_UPDATES
             ));
         } else if (newStatus == TicketStatus.CLOSED) {
             notificationService.createNotification(new CreateNotificationRequest(
                     saved.getUserId(),
                     NotificationType.INFO,
-                    "Incident ticket status updated to CLOSED: " + saved.getTitle()
+                    "Incident ticket status updated to CLOSED: " + saved.getTitle(),
+                    NotificationPreferenceCategory.STATUS_UPDATES
             ));
         }
 
@@ -303,7 +308,8 @@ public class TicketServiceImpl implements TicketService {
         notificationService.createNotification(new CreateNotificationRequest(
                 ticket.getUserId(),
                 NotificationType.INFO,
-                "Technician update on your ticket: " + ticket.getTitle()
+            "Technician update on your ticket: " + ticket.getTitle(),
+            NotificationPreferenceCategory.TECHNICIAN_UPDATES
         ));
 
         return toUpdateResponse(savedLog);

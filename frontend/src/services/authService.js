@@ -22,6 +22,28 @@ const authService = {
     const response = await api.get('/auth/me');
     return response.data;
   },
+
+  /**
+   * Update current authenticated user's profile.
+   * @param {{name: string, profilePicture?: string | null}} payload
+   * @returns {Promise<object>} Updated user profile
+   */
+  updateCurrentUser: async (payload) => {
+    const response = await api.put('/auth/me', payload);
+    return response.data;
+  },
+
+  /**
+   * Upload current user's profile picture file.
+   * @param {File} file
+   * @returns {Promise<object>} Updated user profile
+   */
+  uploadProfilePicture: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/auth/me/profile-picture', formData);
+    return response.data;
+  },
 };
 
 export default authService;

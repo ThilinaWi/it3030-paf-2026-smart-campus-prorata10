@@ -15,6 +15,7 @@ import com.smartcampus.exception.ForbiddenOperationException;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.dto.request.CreateNotificationRequest;
 import com.smartcampus.model.enums.NotificationType;
+import com.smartcampus.model.enums.NotificationPreferenceCategory;
 import com.smartcampus.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -317,7 +318,7 @@ public class BookingService {
         }
 
         CreateNotificationRequest notificationRequest = new CreateNotificationRequest(
-                userId, NotificationType.INFO, message);
+            userId, NotificationType.INFO, message, NotificationPreferenceCategory.SYSTEM);
         notificationService.createNotification(notificationRequest);
         log.info("Notification sent to user {} for booking status: {}", userId, status);
     }
@@ -332,7 +333,11 @@ public class BookingService {
                 booking.getDate(),
                 timeRange
         );
-        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
+        notificationService.createNotificationsForRole(
+            Role.ADMIN,
+            NotificationType.ALERT,
+            message,
+            NotificationPreferenceCategory.SYSTEM);
     }
 
     private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
@@ -345,7 +350,11 @@ public class BookingService {
                 booking.getDate(),
                 timeRange
         );
-        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
+        notificationService.createNotificationsForRole(
+            Role.ADMIN,
+            NotificationType.ALERT,
+            message,
+            NotificationPreferenceCategory.SYSTEM);
     }
 
     /**

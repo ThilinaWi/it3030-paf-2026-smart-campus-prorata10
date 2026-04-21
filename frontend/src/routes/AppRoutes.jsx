@@ -4,6 +4,7 @@ import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
 import NotificationsPage from '../pages/NotificationsPage';
+import SettingsPage from '../pages/SettingsPage';
 import BookingsPage from '../pages/BookingsPage';
 import AdminBookingsPage from '../pages/AdminBookingsPage';
 import AdminUsersPage from '../pages/AdminUsersPage';
@@ -41,6 +42,38 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <NotificationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/notifications"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/profile"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/security"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Navigate to="/settings/notifications" replace />
           </ProtectedRoute>
         }
       />

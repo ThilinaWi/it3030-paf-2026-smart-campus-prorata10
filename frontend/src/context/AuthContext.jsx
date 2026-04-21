@@ -57,6 +57,24 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
+   * Update current user's profile details and keep context in sync.
+   */
+  const updateProfile = useCallback(async (payload) => {
+    const updatedUser = await authService.updateCurrentUser(payload);
+    setUser(updatedUser);
+    return updatedUser;
+  }, []);
+
+  /**
+   * Upload current user's profile picture and sync auth user state.
+   */
+  const uploadProfilePicture = useCallback(async (file) => {
+    const updatedUser = await authService.uploadProfilePicture(file);
+    setUser(updatedUser);
+    return updatedUser;
+  }, []);
+
+  /**
    * Logout — remove token and clear user state.
    */
   const logout = useCallback(() => {
@@ -68,6 +86,8 @@ export function AuthProvider({ children }) {
     user,
     loading,
     login,
+    updateProfile,
+    uploadProfilePicture,
     logout,
     isAuthenticated: !!user,
   };

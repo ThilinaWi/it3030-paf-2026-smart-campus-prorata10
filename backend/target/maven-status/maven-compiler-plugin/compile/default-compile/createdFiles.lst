@@ -24,6 +24,7 @@ com\smartcampus\model\enums\TicketCategory.class
 com\smartcampus\SmartCampusApplication.class
 com\smartcampus\model\dto\response\NotificationDTO.class
 com\smartcampus\model\dto\response\BookingDTO.class
+com\smartcampus\service\NotificationService$1.class
 com\smartcampus\model\enums\ResourceType.class
 com\smartcampus\repository\UserRepository.class
 com\smartcampus\repository\NotificationRepository.class

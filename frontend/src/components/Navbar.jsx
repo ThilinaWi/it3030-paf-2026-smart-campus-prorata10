@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   HiOutlineMenu,
   HiOutlineX,
   HiOutlineUserCircle,
   HiOutlineLogout,
+  HiOutlineChevronDown,
+  HiOutlineCog,
 } from 'react-icons/hi';
 import { useAuth } from '../hooks/useAuth';
 import NotificationPanel from './NotificationPanel';
@@ -16,10 +18,27 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  if (!isAuthenticated) return null;
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return undefined;
+    }
+
+    const onPointerDown = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <>
@@ -45,23 +64,46 @@ export default function Navbar() {
 
           <div className="navbar-right">
             <NotificationPanel />
-            <div className="user-menu" title={user?.name || 'Logged in user'}>
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.name}
-                  className="user-avatar"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="user-avatar-fallback" aria-hidden="true">
-                  <HiOutlineUserCircle size={22} />
-                </span>
+            <div className="user-menu" title={user?.name || 'Logged in user'} ref={profileMenuRef}>
+              <button
+                type="button"
+                className="user-menu-trigger"
+                onClick={() => setIsProfileMenuOpen((open) => !open)}
+                aria-haspopup="menu"
+                aria-expanded={isProfileMenuOpen}
+              >
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name}
+                    className="user-avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="user-avatar-fallback" aria-hidden="true">
+                    <HiOutlineUserCircle size={22} />
+                  </span>
+                )}
+                <div className="user-info">
+                  <span className="user-name">{user?.name || 'User'}</span>
+                  <span className="user-role">{user?.role || 'USER'}</span>
+                </div>
+                <HiOutlineChevronDown size={16} className={`user-menu-chevron ${isProfileMenuOpen ? 'open' : ''}`} />
+              </button>
+
+              {isProfileMenuOpen && (
+                <div className="user-profile-dropdown" role="menu">
+                  <Link
+                    to="/settings/notifications"
+                    className="user-profile-menu-item"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    role="menuitem"
+                  >
+                    <HiOutlineCog size={16} />
+                    <span>Settings</span>
+                  </Link>
+                </div>
               )}
-              <div className="user-info">
-                <span className="user-name">{user?.name || 'User'}</span>
-                <span className="user-role">{user?.role || 'USER'}</span>
-              </div>
             </div>
             <button
               type="button"
