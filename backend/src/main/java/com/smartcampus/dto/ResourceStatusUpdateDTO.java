@@ -16,4 +16,5 @@ public class ResourceStatusUpdateDTO {
         isActive = active;
     }
     
+
 }
