@@ -167,7 +167,7 @@ const styles = {
         padding: '2rem',
 
     },
-    
+
     card: {
         backgroundColor: 'white',
         borderRadius: '12px',
@@ -250,6 +250,7 @@ const styles = {
         padding: '2rem',
         color: '#e74c3c',
     },
+    
 };
 
 export default ResourceDetail;
