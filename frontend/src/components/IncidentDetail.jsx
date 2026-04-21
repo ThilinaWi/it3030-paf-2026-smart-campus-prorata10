@@ -53,29 +53,18 @@ const getResolutionTime = (createdAt, resolvedAt) => {
   return `${hours}h ${minutes}m`;
 };
 
-const getOpenTime = (createdAt, nowTs) => {
-  if (!createdAt) return null;
-
-  const diffMs = nowTs - new Date(createdAt).getTime();
-  if (diffMs < 0) return null;
-
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  return `${hours}h ${minutes}m`;
-};
-
-const formatDateTime = (value) => {
+const formatDateTimeDetail = (value) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
-  return date.toLocaleString();
-};
 
-const formatTimeOnly = (value) => {
-  if (!value) return '-';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '-';
-  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const datePart = date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+  const timePart = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  return `${datePart} • ${timePart}`;
 };
 
 const formatMinutesCompact = (minutes) => {
@@ -120,7 +109,9 @@ export default function IncidentDetail({
 
   if (!incident) return null;
 
-  const resolutionDuration = getResolutionTime(incident.createdAt, incident.resolvedAt);
+  const resolutionDuration =
+    formatMinutesCompact(incident.timeToResolutionMinutes) ||
+    getResolutionTime(incident.createdAt, incident.resolvedAt);
   const firstResponseDuration = formatMinutesCompact(incident.timeToFirstResponseMinutes);
 
   return (
@@ -187,25 +178,33 @@ export default function IncidentDetail({
         <div className="id-sla-grid">
           <div className="id-sla-row">
             <span className="id-sla-label">Created:</span>
-            <span className="id-sla-value">{formatTimeOnly(incident.createdAt)}</span>
+            <div className="id-sla-value-block">
+              <span className="id-sla-value">{formatDateTimeDetail(incident.createdAt)}</span>
+            </div>
           </div>
 
           <div className="id-sla-row">
             <span className="id-sla-label">First Response:</span>
-            <span className="id-sla-value">
-              {incident.firstResponseAt
-                ? `${formatTimeOnly(incident.firstResponseAt)}${firstResponseDuration ? ` (${firstResponseDuration})` : ''}`
-                : '-'}
-            </span>
+            {incident.firstResponseAt ? (
+              <div className="id-sla-value-block">
+                <span className="id-sla-value">{formatDateTimeDetail(incident.firstResponseAt)}</span>
+                <span className="id-sla-subvalue">Response Time: {firstResponseDuration || '-'}</span>
+              </div>
+            ) : (
+              <span className="id-sla-value">-</span>
+            )}
           </div>
 
           <div className="id-sla-row">
-            <span className="id-sla-label">Resolved:</span>
-            <span className="id-sla-value">
-              {incident.resolvedAt
-                ? `${formatTimeOnly(incident.resolvedAt)}${resolutionDuration ? ` (${resolutionDuration})` : ''}`
-                : '-'}
-            </span>
+            <span className="id-sla-label">Resolution Time:</span>
+            {incident.resolvedAt ? (
+              <div className="id-sla-value-block">
+                <span className="id-sla-value">{formatDateTimeDetail(incident.resolvedAt)}</span>
+                <span className="id-sla-subvalue">Resolution Time: {resolutionDuration || '-'}</span>
+              </div>
+            ) : (
+              <span className="id-sla-value">-</span>
+            )}
           </div>
         </div>
       </div>

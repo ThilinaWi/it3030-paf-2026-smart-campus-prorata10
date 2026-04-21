@@ -2379,6 +2379,19 @@
   text-align: right;
 }
 
+.id-sla-value-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.id-sla-subvalue {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--gray-600);
+}
+
 .id-sla-duration {
   color: var(--primary);
 }
