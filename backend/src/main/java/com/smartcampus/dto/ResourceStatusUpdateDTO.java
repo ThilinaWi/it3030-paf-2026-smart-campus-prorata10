@@ -11,10 +11,11 @@ public class ResourceStatusUpdateDTO {
     public Boolean getIsActive() {
         return isActive;
     }
+    
 
     public void setIsActive(Boolean active) {
         isActive = active;
     }
-    
+
 
 }
