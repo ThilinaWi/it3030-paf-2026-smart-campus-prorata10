@@ -16,6 +16,7 @@ const ResourceForm = () => {
         availabilityWindow: '',
     });
     
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -246,7 +247,7 @@ const styles = {
         textAlign: 'center',
 
     },
-    
+
     
 };
 
