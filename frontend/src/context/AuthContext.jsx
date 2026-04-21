@@ -4,6 +4,7 @@ import { TOKEN_KEY } from '../utils/constants';
 
 export const AuthContext = createContext(null);
 
+
 /**
  * AuthProvider — manages authentication state across the application.
  * Provides user data, login/logout functions, and loading state.
