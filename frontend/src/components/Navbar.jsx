@@ -109,14 +109,6 @@ export default function Navbar() {
               >
                 <span>My Incidents</span>
               </Link>
-              <Link
-                to="/incidents/create"
-                className={`nav-link ${location.pathname === '/incidents/create' ? 'active' : ''}`}
-                id="nav-create-incident"
-                onClick={closeSidebar}
-              >
-                <span>Create Incident</span>
-              </Link>
             </>
           )}
           {user?.role === 'TECHNICIAN' && (

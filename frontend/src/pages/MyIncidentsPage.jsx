@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle, HiOutlineRefresh } from 'react-icons/hi';
 import IncidentCard from '../components/IncidentCard';
 import IncidentForm from '../components/IncidentForm';
@@ -81,6 +82,9 @@ export default function MyIncidentsPage() {
           </h1>
         </div>
         <div className="page-header-actions">
+          <Link className="btn btn-primary" to="/incidents/create">
+            Create Ticket
+          </Link>
           <button className="btn btn-secondary" onClick={loadIncidents}>
             <HiOutlineRefresh size={18} />
             Refresh
