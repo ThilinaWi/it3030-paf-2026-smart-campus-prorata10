@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { resourceApi } from '../../services/api';
-import ResourceCard from './ResourceCard';
 import ResourceSearch from './ResourceSearch';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { useAuth } from '../../hooks/useAuth';
+import { HiOutlineRefresh, HiOutlineViewGrid } from 'react-icons/hi';
 
 const ResourceList = () => {
     const { user } = useAuth();
@@ -72,105 +72,122 @@ const ResourceList = () => {
 
     if (loading) return <LoadingSpinner />;
 
+    const getStatusMeta = (resource) => {
+        const isActive = resource.isActive ?? resource.status === 'ACTIVE';
+        return {
+            label: isActive ? 'ACTIVE' : 'INACTIVE',
+            className: isActive ? 'resource-status-active' : 'resource-status-inactive',
+            isActive,
+        };
+    };
+
     return (
-        <div style={styles.container}>
-            <div style={styles.header}>
-                <h1 style={styles.title}>📚 Facilities & Resources Catalogue</h1>
-                <p style={styles.subtitle}>Manage all bookable resources on campus</p>
+        <div className="resources-page">
+            <div className="page-header">
+                <div className="resource-header-block">
+                    <h1 className="resource-page-title">
+                        <HiOutlineViewGrid size={28} />
+                        Facilities & Resources Catalogue
+                    </h1>
+                    <p className="resource-page-caption">Manage all bookable resources on campus</p>
+                </div>
+                <div className="page-header-actions">
+                    <button className="btn btn-secondary" onClick={fetchResources}>
+                        <HiOutlineRefresh size={18} />
+                        Refresh
+                    </button>
+                </div>
             </div>
             
             <ResourceSearch onSearch={handleSearch} onClear={handleClear} />
             
             {error && (
-                <div style={styles.error}>
-                    ⚠️ {error}
+                <div className="alert alert-error">
+                    <span>{error}</span>
                 </div>
             )}
             
-            <div style={styles.stats}>
-                <span>📊 Found {resources.length} resource(s)</span>
+            <div className="booking-filters" style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                <span className="resource-count-chip">Found {resources.length} resource(s)</span>
                 {isAdmin && (
-                    <Link to="/resources/create" style={styles.addButton}>
-                        ➕ Add Resource
+                    <Link to="/resources/create" className="btn btn-primary">
+                        Add Resource
                     </Link>
                 )}
             </div>
             
             {resources.length === 0 ? (
-                <div style={styles.empty}>
-                    <p>❌ No resources found</p>
+                <div className="empty-state">
+                    <p>No resources found.</p>
                 </div>
             ) : (
-                <div style={styles.grid}>
-                    {resources.map(resource => (
-                        <ResourceCard 
-                            key={resource.id} 
-                            resource={resource} 
-                            isAdmin={isAdmin}
-                            onDelete={handleDelete}
-                            onToggleStatus={handleToggleStatus}
-                        />
-                    ))}
+                <div className="resource-admin-table-wrap" style={{ marginTop: '0.75rem' }}>
+                    <table className="resource-admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Capacity</th>
+                                <th>Location</th>
+                                <th>Availability</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {resources.map((resource) => {
+                                const statusMeta = getStatusMeta(resource);
+
+                                return (
+                                    <tr key={resource.id}>
+                                        <td>{resource.name || '-'}</td>
+                                        <td>{(resource.type || '').replaceAll('_', ' ') || '-'}</td>
+                                        <td>{resource.capacity ?? '-'}</td>
+                                        <td>{resource.location || '-'}</td>
+                                        <td>{resource.availabilityWindow || '-'}</td>
+                                        <td>
+                                            <span className={`resource-status-badge ${statusMeta.className}`}>
+                                                {statusMeta.label}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="resource-admin-table-actions">
+                                                <Link to={`/resources/${resource.id}`} className="btn btn-secondary">View</Link>
+                                                {isAdmin ? (
+                                                    <>
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            onClick={() => handleToggleStatus(resource.id, statusMeta.isActive)}
+                                                        >
+                                                            {statusMeta.isActive ? 'Deactivate' : 'Activate'}
+                                                        </button>
+                                                        <Link to={`/resources/edit/${resource.id}`} className="btn btn-secondary">Edit</Link>
+                                                        <button
+                                                            className="btn btn-delete"
+                                                            onClick={() => handleDelete(resource.id, resource.name)}
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <Link
+                                                        to={`/bookings?resourceId=${encodeURIComponent(resource.id)}&resourceName=${encodeURIComponent(resource.name || '')}`}
+                                                        className="btn btn-primary"
+                                                    >
+                                                        Book
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>
     );
-};
-
-const styles = {
-    container: {
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '2rem',
-    },
-    header: {
-        textAlign: 'center',
-        marginBottom: '2rem',
-    },
-    title: {
-        color: '#2c3e50',
-        marginBottom: '0.5rem',
-    },
-    subtitle: {
-        color: '#7f8c8d',
-        fontSize: '1rem',
-    },
-    stats: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '1rem',
-        padding: '0 1rem',
-    },
-    addButton: {
-        padding: '0.5rem 1rem',
-        backgroundColor: '#27ae60',
-        color: 'white',
-        textDecoration: 'none',
-        borderRadius: '6px',
-        fontWeight: 'bold',
-    },
-    grid: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        gap: '1rem',
-    },
-    error: {
-        backgroundColor: '#f8d7da',
-        color: '#721c24',
-        padding: '1rem',
-        borderRadius: '8px',
-        textAlign: 'center',
-        marginBottom: '1rem',
-    },
-    empty: {
-        textAlign: 'center',
-        padding: '3rem',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '12px',
-        color: '#7f8c8d',
-    },
 };
 
 export default ResourceList;

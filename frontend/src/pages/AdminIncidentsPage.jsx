@@ -1,11 +1,25 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { HiOutlineExclamationCircle, HiOutlineRefresh } from 'react-icons/hi';
-import IncidentCard from '../components/IncidentCard';
 import incidentService from '../services/incidentService';
 import adminUserService from '../services/adminUserService';
 
 const STATUS_FILTERS = ['ALL', 'OPEN', 'ASSIGNED', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'];
 const CATEGORY_FILTERS = ['ALL', 'ELECTRICAL', 'NETWORK', 'EQUIPMENT', 'CLEANING', 'OTHER'];
+
+const STATUS_CLASS_MAP = {
+  OPEN: 'incident-status-open',
+  ASSIGNED: 'incident-status-assigned',
+  IN_PROGRESS: 'incident-status-in-progress',
+  RESOLVED: 'incident-status-resolved',
+  CLOSED: 'incident-status-closed',
+};
+
+const PRIORITY_CLASS_MAP = {
+  HIGH: 'incident-priority-high',
+  MEDIUM: 'incident-priority-medium',
+  LOW: 'incident-priority-low',
+};
 
 export default function AdminIncidentsPage() {
   const [incidents, setIncidents] = useState([]);
@@ -145,22 +159,79 @@ export default function AdminIncidentsPage() {
       ) : incidents.length === 0 ? (
         <div className="empty-state"><p>No incidents found for selected filters.</p></div>
       ) : (
-        <div className="bookings-grid" style={{ marginTop: '1rem' }}>
-          {incidents.map((incident) => (
-            <IncidentCard
-              key={incident.id}
-              incident={incident}
-              showRequestedUser={true}
-              showAssignee={true}
-              requestedUserName={requesterNames[incident.userId] || incident.userId}
-              showAssignControls={true}
-              technicians={technicians}
-              selectedTechnicianId={selectedTech[incident.id] || ''}
-              onTechnicianChange={(id, value) => setSelectedTech((prev) => ({ ...prev, [id]: value }))}
-              onAssign={handleAssign}
-              assigning={assigningId === incident.id}
-            />
-          ))}
+        <div className="incident-admin-table-wrap" style={{ marginTop: '1rem' }}>
+          <table className="incident-admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Requester</th>
+                <th>Category</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assigned Technician</th>
+                <th>New Technician</th>
+                <th>Created At</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {incidents.map((incident) => (
+                <tr key={incident.id}>
+                  <td>
+                    <div className="incident-table-title">{incident.title}</div>
+                  </td>
+                  <td>{requesterNames[incident.userId] || incident.userId}</td>
+                  <td>{incident.category}</td>
+                  <td>
+                    <span className={`incident-priority-chip ${PRIORITY_CLASS_MAP[incident.priority] || 'incident-priority-low'}`}>
+                      {incident.priority}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`booking-status-badge ${STATUS_CLASS_MAP[incident.status] || 'incident-status-open'}`}>
+                      {incident.status}
+                    </span>
+                  </td>
+                  <td>{incident.technicianName || 'Unassigned'}</td>
+                  <td>
+                    {incident.status === 'OPEN' ? (
+                      <select
+                        className="role-select incident-admin-table-select"
+                        value={selectedTech[incident.id] || ''}
+                        onChange={(e) => setSelectedTech((prev) => ({ ...prev, [incident.id]: e.target.value }))}
+                      >
+                        <option value="">Select technician</option>
+                        {technicians.map((tech) => (
+                          <option key={tech.id} value={tech.id}>
+                            {tech.name || tech.email}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span className="incident-table-subtext">Only OPEN incidents can be assigned</span>
+                    )}
+                  </td>
+                  <td>{new Date(incident.createdAt).toLocaleString()}</td>
+                  <td>
+                    <div className="incident-admin-table-actions">
+                      {incident.status === 'OPEN' && (
+                        <button
+                          className="btn btn-primary"
+                          disabled={!selectedTech[incident.id] || assigningId === incident.id}
+                          onClick={() => handleAssign(incident.id, selectedTech[incident.id])}
+                        >
+                          {assigningId === incident.id ? 'Assigning...' : 'Assing'}
+                        </button>
+                      )}
+                      <Link className="btn btn-secondary" to={`/incidents/${incident.id}`}>
+                        View
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
