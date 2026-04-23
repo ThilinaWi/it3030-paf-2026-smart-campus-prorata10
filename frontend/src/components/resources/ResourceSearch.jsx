@@ -26,6 +26,7 @@ const ResourceSearch = ({ onSearch, onClear }) => {
         onClear();
 
     };
+
     
 
     return (
