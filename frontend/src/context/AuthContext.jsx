@@ -6,7 +6,7 @@ export const AuthContext = createContext(null);
 
 
 /**
- * AuthProvider — manages authentication state across the application.
+ * AuthProvider — manages authentication state across the application...
  * Provides user data, login/logout functions, and loading state.
  */
 export function AuthProvider({ children }) {
