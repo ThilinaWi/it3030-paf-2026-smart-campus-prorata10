@@ -8,7 +8,7 @@ const ResourceForm = () => {
     const isEdit = !!id;
     
     const [formData, setFormData] = useState({
-        
+
         name: '',
         type: '',
         capacity: '',
@@ -17,7 +17,6 @@ const ResourceForm = () => {
         availabilityWindow: '',
     });
 
-    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
