@@ -13,11 +13,28 @@ const ResourceForm = () => {
         capacity: '',
         location: '',
         description: '',
-        availabilityWindow: '',
+        availabilityDays: 'Mon-Fri',
+        availabilityStartTime: '',
+        availabilityEndTime: '',
     });
     
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [fieldErrors, setFieldErrors] = useState({});
+
+    const availabilityDayOptions = [
+        'Mon-Fri',
+        'Mon-Sat',
+        'Mon-Sun',
+        'Weekends',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+    ];
 
     useEffect(() => {
         if (isEdit) {
@@ -25,17 +42,55 @@ const ResourceForm = () => {
         }
     }, [id]);
 
+    const formatTimeTo12Hour = (time24) => {
+        if (!time24) return '';
+        const [hoursStr, minutes] = time24.split(':');
+        const hours = Number(hoursStr);
+        if (Number.isNaN(hours) || minutes === undefined) return '';
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const displayHour = hours % 12 || 12;
+        return `${displayHour}:${minutes} ${period}`;
+    };
+
+    const parse12HourTo24Hour = (time12) => {
+        if (!time12) return '';
+        const match = time12.trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+        if (!match) return '';
+
+        const [, hourText, minuteText, periodText] = match;
+        let hour = Number(hourText);
+        const minute = Number(minuteText);
+        const period = periodText.toUpperCase();
+
+        if (Number.isNaN(hour) || Number.isNaN(minute) || hour < 1 || hour > 12 || minute < 0 || minute > 59) {
+            return '';
+        }
+
+        if (period === 'AM' && hour === 12) {
+            hour = 0;
+        } else if (period === 'PM' && hour !== 12) {
+            hour += 12;
+        }
+
+        return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    };
+
     const fetchResource = async () => {
         try {
             const response = await resourceApi.getById(id);
             const resource = response.data;
+            const existingWindow = (resource.availabilityWindow || '').trim();
+            const rangeMatch = existingWindow.match(/^(.*?)\s+(\d{1,2}:\d{2}\s*[AP]M)\s*-\s*(\d{1,2}:\d{2}\s*[AP]M)$/i);
+            const parsedDays = rangeMatch ? rangeMatch[1].trim() : 'Mon-Fri';
             setFormData({
                 name: resource.name || '',
                 type: resource.type || '',
                 capacity: resource.capacity || '',
                 location: resource.location || '',
                 description: resource.description || '',
-                availabilityWindow: resource.availabilityWindow || '',
+                availabilityDays: availabilityDayOptions.includes(parsedDays) ? parsedDays : 'Mon-Fri',
+                availabilityStartTime: rangeMatch ? parse12HourTo24Hour(rangeMatch[2]) : '',
+                availabilityEndTime: rangeMatch ? parse12HourTo24Hour(rangeMatch[3]) : '',
             });
         } catch (err) {
             setError('❌ Failed to load resource');
@@ -43,23 +98,105 @@ const ResourceForm = () => {
     };
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [name]: value
         });
+
+        if (fieldErrors[name]) {
+            setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    const validateForm = () => {
+        const nextErrors = {};
+        const trimmedName = formData.name.trim();
+        const trimmedLocation = formData.location.trim();
+        const trimmedDescription = formData.description.trim();
+        const trimmedAvailabilityDays = formData.availabilityDays.trim();
+        const trimmedStartTime = formData.availabilityStartTime.trim();
+        const trimmedEndTime = formData.availabilityEndTime.trim();
+        const capacityNumber = Number(formData.capacity);
+
+        if (!trimmedName) {
+            nextErrors.name = 'Resource name is required';
+        } else if (trimmedName.length < 3) {
+            nextErrors.name = 'Resource name must be at least 3 characters';
+        } else if (trimmedName.length > 120) {
+            nextErrors.name = 'Resource name must be at most 120 characters';
+        }
+
+        if (!formData.type) {
+            nextErrors.type = 'Resource type is required';
+        }
+
+        if (!formData.capacity && formData.capacity !== 0) {
+            nextErrors.capacity = 'Capacity is required';
+        } else if (!Number.isInteger(capacityNumber) || capacityNumber < 1) {
+            nextErrors.capacity = 'Capacity must be a whole number greater than 0';
+        } else if (capacityNumber > 10000) {
+            nextErrors.capacity = 'Capacity must be 10000 or less';
+        }
+
+        if (!trimmedLocation) {
+            nextErrors.location = 'Location is required';
+        } else if (trimmedLocation.length < 2) {
+            nextErrors.location = 'Location must be at least 2 characters';
+        } else if (trimmedLocation.length > 120) {
+            nextErrors.location = 'Location must be at most 120 characters';
+        }
+
+        if (trimmedDescription.length > 500) {
+            nextErrors.description = 'Description must be at most 500 characters';
+        }
+
+        if (!trimmedAvailabilityDays) {
+            nextErrors.availabilityDays = 'Availability days are required';
+        } else if (trimmedAvailabilityDays.length > 60) {
+            nextErrors.availabilityDays = 'Availability days must be at most 60 characters';
+        }
+
+        if (!trimmedStartTime) {
+            nextErrors.availabilityStartTime = 'Start time is required';
+        }
+
+        if (!trimmedEndTime) {
+            nextErrors.availabilityEndTime = 'End time is required';
+        }
+
+        if (trimmedStartTime && trimmedEndTime && trimmedStartTime >= trimmedEndTime) {
+            nextErrors.availabilityEndTime = 'End time must be after start time';
+        }
+
+        setFieldErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!validateForm()) {
+            return;
+        }
+
         setLoading(true);
         setError('');
 
+        const payload = {
+            name: formData.name.trim(),
+            type: formData.type,
+            location: formData.location.trim(),
+            description: formData.description.trim(),
+            availabilityWindow: `${formData.availabilityDays.trim()} ${formatTimeTo12Hour(formData.availabilityStartTime.trim())} - ${formatTimeTo12Hour(formData.availabilityEndTime.trim())}`.trim(),
+            capacity: Number(formData.capacity),
+        };
+
         try {
             if (isEdit) {
-                await resourceApi.update(id, formData);
+                await resourceApi.update(id, payload);
                 alert('✅ Resource updated successfully!');
             } else {
-                await resourceApi.create(formData);
+                await resourceApi.create(payload);
                 alert('✅ Resource created successfully!');
             }
             navigate('/resources');
@@ -79,7 +216,7 @@ const ResourceForm = () => {
                 
                 {error && <div style={styles.error}>{error}</div>}
                 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} noValidate>
                     <div style={styles.field}>
                         <label>Resource Name *</label>
                         <input
@@ -90,7 +227,9 @@ const ResourceForm = () => {
                             required
                             placeholder="e.g., Computer Lab A"
                             style={styles.input}
+                            className={fieldErrors.name ? 'input-error' : ''}
                         />
+                        {fieldErrors.name && <div className="field-error">{fieldErrors.name}</div>}
                     </div>
                     
                     <div style={styles.field}>
@@ -101,6 +240,7 @@ const ResourceForm = () => {
                             onChange={handleChange}
                             required
                             style={styles.input}
+                            className={fieldErrors.type ? 'input-error' : ''}
                         >
                             <option value="">Select Type</option>
                             <option value="LECTURE_HALL">Lecture Hall</option>
@@ -110,6 +250,7 @@ const ResourceForm = () => {
                             <option value="AUDITORIUM">Auditorium</option>
                             <option value="STUDY_ROOM">Study Room</option>
                         </select>
+                        {fieldErrors.type && <div className="field-error">{fieldErrors.type}</div>}
                     </div>
                     
                     <div style={styles.row}>
@@ -124,7 +265,9 @@ const ResourceForm = () => {
                                 min="1"
                                 placeholder="Number of people"
                                 style={styles.input}
+                                className={fieldErrors.capacity ? 'input-error' : ''}
                             />
+                            {fieldErrors.capacity && <div className="field-error">{fieldErrors.capacity}</div>}
                         </div>
                         
                         <div style={styles.field}>
@@ -137,7 +280,9 @@ const ResourceForm = () => {
                                 required
                                 placeholder="e.g., Building A, Floor 2"
                                 style={styles.input}
+                                className={fieldErrors.location ? 'input-error' : ''}
                             />
+                            {fieldErrors.location && <div className="field-error">{fieldErrors.location}</div>}
                         </div>
                     </div>
                     
@@ -150,18 +295,64 @@ const ResourceForm = () => {
                             rows="3"
                             placeholder="Describe the resource..."
                             style={styles.textarea}
+                            className={fieldErrors.description ? 'input-error' : ''}
                         />
+                        {fieldErrors.description && <div className="field-error">{fieldErrors.description}</div>}
                     </div>
                     
                     <div style={styles.field}>
-                        <label>Availability Window (optional)</label>
+                        <label>Availability Days *</label>
+                        <select
+                            name="availabilityDays"
+                            value={formData.availabilityDays}
+                            onChange={handleChange}
+                            required
+                            style={styles.input}
+                            className={fieldErrors.availabilityDays ? 'input-error' : ''}
+                        >
+                            {availabilityDayOptions.map((option) => (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </select>
+                        {fieldErrors.availabilityDays && <div className="field-error">{fieldErrors.availabilityDays}</div>}
+                    </div>
+
+                    <div style={styles.row}>
+                        <div style={styles.field}>
+                            <label>Start Time *</label>
+                            <input
+                                type="time"
+                                name="availabilityStartTime"
+                                value={formData.availabilityStartTime}
+                                onChange={handleChange}
+                                required
+                                style={styles.input}
+                                className={fieldErrors.availabilityStartTime ? 'input-error' : ''}
+                            />
+                            {fieldErrors.availabilityStartTime && <div className="field-error">{fieldErrors.availabilityStartTime}</div>}
+                        </div>
+                        <div style={styles.field}>
+                            <label>End Time *</label>
+                            <input
+                                type="time"
+                                name="availabilityEndTime"
+                                value={formData.availabilityEndTime}
+                                onChange={handleChange}
+                                required
+                                style={styles.input}
+                                className={fieldErrors.availabilityEndTime ? 'input-error' : ''}
+                            />
+                            {fieldErrors.availabilityEndTime && <div className="field-error">{fieldErrors.availabilityEndTime}</div>}
+                        </div>
+                    </div>
+
+                    <div style={styles.field}>
+                        <label>Preview</label>
                         <input
                             type="text"
-                            name="availabilityWindow"
-                            value={formData.availabilityWindow}
-                            onChange={handleChange}
-                            placeholder="e.g., Mon-Fri 9AM-5PM"
-                            style={styles.input}
+                            value={`${formData.availabilityDays.trim() || 'Mon-Fri'} ${formatTimeTo12Hour(formData.availabilityStartTime) || '--:--'} - ${formatTimeTo12Hour(formData.availabilityEndTime) || '--:--'}`}
+                            readOnly
+                            style={{ ...styles.input, backgroundColor: '#f8f9fa' }}
                         />
                     </div>
                     

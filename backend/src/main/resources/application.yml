@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
   data:
     mongodb:
       uri: mongodb+srv://thilina:thilina@smartcampus.xakxcat.mongodb.net/smart_campus_db?retryWrites=true&w=majority&appName=smartCampus

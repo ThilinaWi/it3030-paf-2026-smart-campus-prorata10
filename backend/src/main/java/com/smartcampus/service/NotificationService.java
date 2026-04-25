@@ -6,6 +6,7 @@ import com.smartcampus.repository.UserRepository;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.dto.request.CreateNotificationRequest;
 import com.smartcampus.model.dto.response.NotificationDTO;
+import com.smartcampus.model.enums.NotificationPreferenceCategory;
 import com.smartcampus.model.enums.NotificationType;
 import com.smartcampus.model.entity.Notification;
 import com.smartcampus.repository.NotificationRepository;
@@ -93,6 +94,17 @@ public class NotificationService {
      * Create a new notification.
      */
     public NotificationDTO createNotification(CreateNotificationRequest request) {
+        User targetUser = userRepository.findById(request.getUserId()).orElse(null);
+        NotificationPreferenceCategory category = request.getPreferenceCategory() != null
+            ? request.getPreferenceCategory()
+            : inferPreferenceCategory(request.getMessage());
+
+        if (targetUser != null && !isPreferenceEnabled(targetUser, category)) {
+            log.info("Skipping notification for user {} due to disabled preference {}",
+                request.getUserId(), category);
+            return null;
+        }
+
         Notification notification = new Notification();
         notification.setUserId(request.getUserId());
         notification.setType(request.getType());
@@ -107,6 +119,13 @@ public class NotificationService {
      * Create the same notification for every user in a target role.
      */
     public void createNotificationsForRole(Role role, NotificationType type, String message) {
+        createNotificationsForRole(role, type, message, inferPreferenceCategory(message));
+    }
+
+    public void createNotificationsForRole(Role role,
+                                           NotificationType type,
+                                           String message,
+                                           NotificationPreferenceCategory category) {
         List<User> targetUsers = userRepository.findAllByRole(role);
 
         if (targetUsers.isEmpty()) {
@@ -114,13 +133,20 @@ public class NotificationService {
             return;
         }
 
-        List<Notification> notifications = targetUsers.stream().map(user -> {
+        List<Notification> notifications = targetUsers.stream()
+                .filter(user -> isPreferenceEnabled(user, category))
+                .map(user -> {
             Notification notification = new Notification();
             notification.setUserId(user.getId());
             notification.setType(type);
             notification.setMessage(message);
             return notification;
         }).collect(Collectors.toList());
+
+        if (notifications.isEmpty()) {
+            log.info("No notifications sent for role {} because all targeted users disabled {}", role, category);
+            return;
+        }
 
         notificationRepository.saveAll(notifications);
         log.info("Created {} notifications for role {}", notifications.size(), role);
@@ -138,5 +164,34 @@ public class NotificationService {
                 notification.isRead(),
                 notification.getCreatedAt()
         );
+    }
+
+    private NotificationPreferenceCategory inferPreferenceCategory(String message) {
+        String normalized = message == null ? "" : message.toLowerCase();
+
+        if (normalized.contains("status updated") || normalized.contains("approved") || normalized.contains("rejected")) {
+            return NotificationPreferenceCategory.STATUS_UPDATES;
+        }
+
+        if (normalized.contains("technician update") || normalized.contains("progress note") || normalized.contains("comment")) {
+            return NotificationPreferenceCategory.TECHNICIAN_UPDATES;
+        }
+
+        if (normalized.contains("assigned")) {
+            return NotificationPreferenceCategory.ASSIGNMENTS;
+        }
+
+        return NotificationPreferenceCategory.SYSTEM;
+    }
+
+    private boolean isPreferenceEnabled(User user, NotificationPreferenceCategory category) {
+        User.NotificationPreferences preferences = user.getNotificationPreferences();
+
+        return switch (category) {
+            case STATUS_UPDATES -> preferences.isStatusUpdates();
+            case TECHNICIAN_UPDATES -> preferences.isTechnicianUpdates();
+            case ASSIGNMENTS -> preferences.isAssignments();
+            case SYSTEM -> preferences.isSystem();
+        };
     }
 }

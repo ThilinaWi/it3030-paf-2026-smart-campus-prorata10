@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 public class ResourceUpdateDTO {
-    @Size(min = 1, message = "Name cannot be blank")
+    @Size(min = 1, max = 120, message = "Name must be between 1 and 120 characters")
     private String name;
 
     private ResourceType type;
@@ -13,12 +13,15 @@ public class ResourceUpdateDTO {
     @Min(value = 1, message = "Capacity must be greater than 0")
     private Integer capacity;
 
-    @Size(min = 1, message = "Location cannot be blank")
+    @Size(min = 1, max = 120, message = "Location must be between 1 and 120 characters")
     private String location;
 
     private String status;
+    @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
     private String imageUrl;
+
+    @Size(max = 120, message = "Availability window must be at most 120 characters")
     private String availabilityWindow;
     
     public ResourceUpdateDTO() {}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 const ResourceSearch = ({ onSearch, onClear }) => {
     const [filters, setFilters] = useState({
@@ -6,7 +6,12 @@ const ResourceSearch = ({ onSearch, onClear }) => {
         type: '',
         minCapacity: '',
         location: '',
+        status: '',
     });
+
+    const hasActiveFilters = useMemo(() => (
+        Object.values(filters).some((value) => String(value).trim() !== '')
+    ), [filters]);
 
     const handleChange = (e) => {
         setFilters({
@@ -17,35 +22,45 @@ const ResourceSearch = ({ onSearch, onClear }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSearch(filters);
+        onSearch({
+            name: filters.name.trim(),
+            type: filters.type,
+            minCapacity: filters.minCapacity,
+            location: filters.location.trim(),
+            status: filters.status,
+        });
     };
 
     const handleClear = () => {
-        const emptyFilters = { name: '', type: '', minCapacity: '', location: '' };
+        const emptyFilters = { name: '', type: '', minCapacity: '', location: '', status: '' };
         setFilters(emptyFilters);
         onClear();
     };
 
     return (
-        <div style={styles.container}>
-            <h3 style={styles.title}>🔍 Search & Filter Resources</h3>
-            <form onSubmit={handleSubmit} style={styles.form}>
-                <div style={styles.row}>
-                    <div style={styles.field}>
-                        <label>🔎 Name</label>
+        <section className="resource-search-section resource-search-redesign">
+            <div className="resource-search-top">
+                <h3 className="resource-search-title">Search and Filter Resources</h3>
+                {hasActiveFilters && <span className="resource-active-filter-chip">Filters Active</span>}
+            </div>
+
+            <form onSubmit={handleSubmit} className="search-form">
+                <div className="search-row search-row-5">
+                    <div className="search-field">
+                        <label htmlFor="resource-search-name">Keyword</label>
                         <input
                             type="text"
+                            id="resource-search-name"
                             name="name"
                             value={filters.name}
                             onChange={handleChange}
-                            placeholder="Enter resource name..."
-                            style={styles.input}
+                            placeholder="Name, id, or keyword"
                         />
                     </div>
-                    
-                    <div style={styles.field}>
-                        <label>📌 Type</label>
-                        <select name="type" value={filters.type} onChange={handleChange} style={styles.input}>
+
+                    <div className="search-field">
+                        <label htmlFor="resource-search-type">Type</label>
+                        <select id="resource-search-type" name="type" value={filters.type} onChange={handleChange}>
                             <option value="">All Types</option>
                             <option value="LECTURE_HALL">Lecture Hall</option>
                             <option value="LAB">Lab</option>
@@ -55,93 +70,58 @@ const ResourceSearch = ({ onSearch, onClear }) => {
                             <option value="STUDY_ROOM">Study Room</option>
                         </select>
                     </div>
-                    
-                    <div style={styles.field}>
-                        <label>👥 Min Capacity</label>
+
+                    <div className="search-field">
+                        <label htmlFor="resource-search-capacity">Minimum Capacity</label>
                         <input
                             type="number"
+                            id="resource-search-capacity"
                             name="minCapacity"
                             value={filters.minCapacity}
                             onChange={handleChange}
-                            placeholder="Minimum seats"
-                            style={styles.input}
+                            placeholder="e.g. 30"
+                            min="0"
                         />
                     </div>
-                    
-                    <div style={styles.field}>
-                        <label>📍 Location</label>
+
+                    <div className="search-field">
+                        <label htmlFor="resource-search-location">Location</label>
                         <input
                             type="text"
+                            id="resource-search-location"
                             name="location"
                             value={filters.location}
                             onChange={handleChange}
-                            placeholder="Building name..."
-                            style={styles.input}
+                            placeholder="Building or floor"
                         />
                     </div>
+
+                    <div className="search-field">
+                        <label htmlFor="resource-search-status">Status</label>
+                        <select id="resource-search-status" name="status" value={filters.status} onChange={handleChange}>
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
                 </div>
-                
-                <div style={styles.buttons}>
-                    <button type="submit" style={{...styles.button, backgroundColor: '#3498db'}}>
-                        🔍 Search
+
+                <div className="search-actions resource-search-actions">
+                    <button type="submit" className="btn btn-primary">
+                        Apply Filters
                     </button>
-                    <button type="button" onClick={handleClear} style={{...styles.button, backgroundColor: '#95a5a6'}}>
-                        🗑️ Clear
+
+                    <button type="button" onClick={handleClear} className="btn btn-secondary">
+                        Clear
                     </button>
                 </div>
             </form>
-        </div>
-    );
-};
 
-const styles = {
-    container: {
-        backgroundColor: '#f8f9fa',
-        padding: '1.5rem',
-        borderRadius: '12px',
-        marginBottom: '2rem',
-        border: '1px solid #e0e0e0',
-    },
-    title: {
-        marginTop: 0,
-        marginBottom: '1rem',
-        color: '#2c3e50',
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-    },
-    row: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-    },
-    field: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-    },
-    input: {
-        padding: '0.5rem',
-        border: '1px solid #ddd',
-        borderRadius: '6px',
-        fontSize: '14px',
-    },
-    buttons: {
-        display: 'flex',
-        gap: '1rem',
-        justifyContent: 'flex-end',
-    },
-    button: {
-        padding: '0.5rem 1rem',
-        border: 'none',
-        borderRadius: '6px',
-        color: 'white',
-        cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: 'bold',
-    },
+            {hasActiveFilters && (
+                <p className="resource-search-hint">Tip: press Enter in any field to apply instantly.</p>
+            )}
+        </section>
+    );
 };
 
 export default ResourceSearch;

@@ -16,6 +16,8 @@ public class BookingDTO {
     private String userId;
     private String userName;
     private String resourceId;
+    private String resourceName;
+    private String resourceLocation;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -54,6 +56,12 @@ public class BookingDTO {
 
     public String getResourceId() { return resourceId; }
     public void setResourceId(String resourceId) { this.resourceId = resourceId; }
+
+    public String getResourceName() { return resourceName; }
+    public void setResourceName(String resourceName) { this.resourceName = resourceName; }
+
+    public String getResourceLocation() { return resourceLocation; }
+    public void setResourceLocation(String resourceLocation) { this.resourceLocation = resourceLocation; }
 
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }

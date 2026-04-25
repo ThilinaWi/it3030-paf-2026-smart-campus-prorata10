@@ -15,6 +15,7 @@ import com.smartcampus.exception.ForbiddenOperationException;
 import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.dto.request.CreateNotificationRequest;
 import com.smartcampus.model.enums.NotificationType;
+import com.smartcampus.model.enums.NotificationPreferenceCategory;
 import com.smartcampus.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -186,6 +189,16 @@ public class BookingService {
                     "Booking can only be APPROVED or REJECTED by admin. Received: " + newStatus);
         }
 
+        if (newStatus == BookingStatus.APPROVED) {
+            checkForConflicts(
+                booking.getResourceId(),
+                booking.getDate(),
+                booking.getStartTime(),
+                booking.getEndTime(),
+                booking.getId()
+            );
+        }
+
         String trimmedReason = reason == null ? null : reason.trim();
         if (newStatus == BookingStatus.REJECTED && (trimmedReason == null || trimmedReason.isEmpty())) {
             throw new IllegalArgumentException("Reason is required when rejecting a booking");
@@ -242,24 +255,12 @@ public class BookingService {
 
         validateResourceIsBookable(resourceId);
 
-        List<BookingStatus> activeStatuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED);
-        List<Booking> existingBookings = bookingRepository
-                .findByResourceIdAndDateAndStatusIn(resourceId, date, activeStatuses);
-
-        for (Booking existing : existingBookings) {
-            if (excludedBookingId != null && excludedBookingId.equals(existing.getId())) {
-                continue;
-            }
-
-            boolean hasConflict = startTime.isBefore(existing.getEndTime())
-                    && endTime.isAfter(existing.getStartTime());
-
-            if (hasConflict) {
-                return false;
-            }
+        try {
+            checkForConflicts(resourceId, date, startTime, endTime, excludedBookingId);
+            return true;
+        } catch (ConflictException ex) {
+            return false;
         }
-
-        return true;
     }
 
     private void validateResourceIsBookable(String resourceId) {
@@ -272,7 +273,7 @@ public class BookingService {
     }
 
     /**
-     * Check for scheduling conflicts for the same resource on the same date.
+    * Check for scheduling conflicts for the same resource or same location on the same date.
      * A conflict exists if: newStart < existingEnd AND newEnd > existingStart
      */
     private void checkForConflicts(
@@ -283,12 +284,22 @@ public class BookingService {
             String excludedBookingId
     ) {
         List<BookingStatus> activeStatuses = List.of(BookingStatus.PENDING, BookingStatus.APPROVED);
-
-        List<Booking> existingBookings = bookingRepository
-                .findByResourceIdAndDateAndStatusIn(resourceId, date, activeStatuses);
+        List<Booking> existingBookings = bookingRepository.findByDateAndStatusIn(date, activeStatuses);
+        Map<String, String> locationCache = new HashMap<>();
+        String targetLocation = resolveResourceLocation(resourceId, locationCache);
 
         for (Booking existing : existingBookings) {
             if (excludedBookingId != null && excludedBookingId.equals(existing.getId())) {
+                continue;
+            }
+
+            boolean sameResource = resourceId.equals(existing.getResourceId());
+            String existingLocation = resolveResourceLocation(existing.getResourceId(), locationCache);
+            boolean sameLocation = targetLocation != null
+                    && existingLocation != null
+                    && targetLocation.equalsIgnoreCase(existingLocation);
+
+            if (!sameResource && !sameLocation) {
                 continue;
             }
 
@@ -317,7 +328,7 @@ public class BookingService {
         }
 
         CreateNotificationRequest notificationRequest = new CreateNotificationRequest(
-                userId, NotificationType.INFO, message);
+            userId, NotificationType.INFO, message, NotificationPreferenceCategory.SYSTEM);
         notificationService.createNotification(notificationRequest);
         log.info("Notification sent to user {} for booking status: {}", userId, status);
     }
@@ -332,7 +343,11 @@ public class BookingService {
                 booking.getDate(),
                 timeRange
         );
-        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
+        notificationService.createNotificationsForRole(
+            Role.ADMIN,
+            NotificationType.ALERT,
+            message,
+            NotificationPreferenceCategory.SYSTEM);
     }
 
     private void sendUpdatedBookingNotificationToAdmins(Booking booking) {
@@ -345,7 +360,11 @@ public class BookingService {
                 booking.getDate(),
                 timeRange
         );
-        notificationService.createNotificationsForRole(Role.ADMIN, NotificationType.ALERT, message);
+        notificationService.createNotificationsForRole(
+            Role.ADMIN,
+            NotificationType.ALERT,
+            message,
+            NotificationPreferenceCategory.SYSTEM);
     }
 
     /**
@@ -366,6 +385,9 @@ public class BookingService {
         );
         dto.setAdminReason(booking.getAdminReason());
         dto.setUserName(resolveUserName(booking.getUserId()));
+        Resource resource = resourceRepository.findById(booking.getResourceId()).orElse(null);
+        dto.setResourceName(resource != null ? resource.getName() : null);
+        dto.setResourceLocation(resource != null ? resource.getLocation() : null);
         return dto;
     }
 
@@ -381,5 +403,23 @@ public class BookingService {
 
     private String formatClockTime(LocalTime time) {
         return time.format(CLOCK_12H_FORMAT);
+    }
+
+    private String resolveResourceLocation(String resourceId, Map<String, String> locationCache) {
+        if (resourceId == null || resourceId.isBlank()) {
+            return null;
+        }
+
+        if (locationCache.containsKey(resourceId)) {
+            return locationCache.get(resourceId);
+        }
+
+        String location = resourceRepository.findById(resourceId)
+                .map(Resource::getLocation)
+                .filter(value -> value != null && !value.isBlank())
+                .orElse(null);
+
+        locationCache.put(resourceId, location);
+        return location;
     }
 }

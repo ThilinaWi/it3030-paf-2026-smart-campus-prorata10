@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   HiOutlineMenu,
   HiOutlineX,
   HiOutlineUserCircle,
   HiOutlineLogout,
+  HiOutlineChevronDown,
+  HiOutlineCog,
 } from 'react-icons/hi';
 import { useAuth } from '../hooks/useAuth';
 import NotificationPanel from './NotificationPanel';
@@ -16,10 +18,33 @@ export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  if (!isAuthenticated) return null;
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  const dashboardPath = user?.role === 'ADMIN'
+    ? '/dashboard/admin'
+    : user?.role === 'TECHNICIAN'
+      ? '/dashboard/technician'
+      : '/dashboard/user';
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return undefined;
+    }
+
+    const onPointerDown = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return null;
 
   return (
     <>
@@ -37,7 +62,7 @@ export default function Navbar() {
               {isSidebarOpen ? <HiOutlineX size={20} /> : <HiOutlineMenu size={20} />}
             </button>
 
-            <Link to="/dashboard" className="navbar-brand" onClick={closeSidebar}>
+            <Link to={dashboardPath} className="navbar-brand" onClick={closeSidebar}>
               <span className="brand-icon">🏫</span>
               <span className="brand-text">Smart Campus</span>
             </Link>
@@ -45,34 +70,59 @@ export default function Navbar() {
 
           <div className="navbar-right">
             <NotificationPanel />
-            <div className="user-menu" title={user?.name || 'Logged in user'}>
-              {user?.profilePicture ? (
-                <img
-                  src={user.profilePicture}
-                  alt={user.name}
-                  className="user-avatar"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="user-avatar-fallback" aria-hidden="true">
-                  <HiOutlineUserCircle size={22} />
-                </span>
+            <div className="user-menu" title={user?.name || 'Logged in user'} ref={profileMenuRef}>
+              <button
+                type="button"
+                className="user-menu-trigger"
+                onClick={() => setIsProfileMenuOpen((open) => !open)}
+                aria-haspopup="menu"
+                aria-expanded={isProfileMenuOpen}
+              >
+                {user?.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name}
+                    className="user-avatar"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <span className="user-avatar-fallback" aria-hidden="true">
+                    <HiOutlineUserCircle size={22} />
+                  </span>
+                )}
+                <div className="user-info">
+                  <span className="user-name">{user?.name || 'User'}</span>
+                  <span className="user-role">{user?.role || 'USER'}</span>
+                </div>
+                <HiOutlineChevronDown size={16} className={`user-menu-chevron ${isProfileMenuOpen ? 'open' : ''}`} />
+              </button>
+
+              {isProfileMenuOpen && (
+                <div className="user-profile-dropdown" role="menu">
+                  <Link
+                    to="/settings/notifications"
+                    className="user-profile-menu-item"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    role="menuitem"
+                  >
+                    <HiOutlineCog size={16} />
+                    <span>Settings</span>
+                  </Link>
+                  <button
+                    type="button"
+                    className="user-profile-menu-item"
+                    onClick={() => {
+                      setIsProfileMenuOpen(false);
+                      logout();
+                    }}
+                    role="menuitem"
+                  >
+                    <HiOutlineLogout size={16} />
+                    <span>Logout</span>
+                  </button>
+                </div>
               )}
-              <div className="user-info">
-                <span className="user-name">{user?.name || 'User'}</span>
-                <span className="user-role">{user?.role || 'USER'}</span>
-              </div>
             </div>
-            <button
-              type="button"
-              className="logout-btn"
-              onClick={logout}
-              id="logout-btn"
-              title="Logout"
-              aria-label="Logout"
-            >
-              <HiOutlineLogout size={18} />
-            </button>
           </div>
         </div>
       </nav>
@@ -82,14 +132,14 @@ export default function Navbar() {
       <aside className={`app-sidebar ${isSidebarOpen ? 'open' : ''}`} id="app-sidebar">
         <div className="navbar-links" id="navbar-links">
           <Link
-            to="/dashboard"
-            className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+            to={dashboardPath}
+            className={`nav-link ${location.pathname.startsWith('/dashboard') ? 'active' : ''}`}
             id="nav-dashboard"
             onClick={closeSidebar}
           >
             <span>Dashboard</span>
           </Link>
-          {user?.role !== 'ADMIN' && (
+          {user?.role === 'USER' && (
             <Link
               to="/bookings"
               className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}
@@ -99,14 +149,38 @@ export default function Navbar() {
               <span>Bookings</span>
             </Link>
           )}
-          <Link
-            to="/resources"
-            className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
-            id="nav-resources"
-            onClick={closeSidebar}
-          >
-            <span>Resource</span>
-          </Link>
+          {user?.role === 'USER' && (
+            <>
+              <Link
+                to="/incidents/my"
+                className={`nav-link ${location.pathname === '/incidents/my' ? 'active' : ''}`}
+                id="nav-my-incidents"
+                onClick={closeSidebar}
+              >
+                <span>My Incidents</span>
+              </Link>
+            </>
+          )}
+          {user?.role === 'TECHNICIAN' && (
+            <Link
+              to="/incidents/assigned"
+              className={`nav-link ${location.pathname === '/incidents/assigned' ? 'active' : ''}`}
+              id="nav-assigned-incidents"
+              onClick={closeSidebar}
+            >
+              <span>Assigned Incidents</span>
+            </Link>
+          )}
+          {user?.role !== 'TECHNICIAN' && (
+            <Link
+              to="/resources"
+              className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
+              id="nav-resources"
+              onClick={closeSidebar}
+            >
+              <span>Resource</span>
+            </Link>
+          )}
           {user?.role === 'ADMIN' && (
             <>
               <Link
@@ -116,6 +190,14 @@ export default function Navbar() {
                 onClick={closeSidebar}
               >
                 <span>Admin Bookings</span>
+              </Link>
+              <Link
+                to="/incidents/admin"
+                className={`nav-link nav-link-admin ${location.pathname === '/incidents/admin' ? 'active' : ''}`}
+                id="nav-admin-incidents"
+                onClick={closeSidebar}
+              >
+                <span>Admin Incidents</span>
               </Link>
               <Link
                 to="/admin/users"

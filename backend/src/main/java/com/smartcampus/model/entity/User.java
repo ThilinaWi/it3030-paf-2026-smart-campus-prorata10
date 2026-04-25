@@ -13,6 +13,48 @@ import java.time.LocalDateTime;
 @Document(collection = "users")
 public class User {
 
+    public static class NotificationPreferences {
+        private boolean statusUpdates = true;
+        private boolean technicianUpdates = true;
+        private boolean assignments = true;
+        private boolean system = true;
+
+        public NotificationPreferences() {
+        }
+
+        public boolean isStatusUpdates() {
+            return statusUpdates;
+        }
+
+        public void setStatusUpdates(boolean statusUpdates) {
+            this.statusUpdates = statusUpdates;
+        }
+
+        public boolean isTechnicianUpdates() {
+            return technicianUpdates;
+        }
+
+        public void setTechnicianUpdates(boolean technicianUpdates) {
+            this.technicianUpdates = technicianUpdates;
+        }
+
+        public boolean isAssignments() {
+            return assignments;
+        }
+
+        public void setAssignments(boolean assignments) {
+            this.assignments = assignments;
+        }
+
+        public boolean isSystem() {
+            return system;
+        }
+
+        public void setSystem(boolean system) {
+            this.system = system;
+        }
+    }
+
     @Id
     private String id;
 
@@ -21,6 +63,8 @@ public class User {
     @Indexed(unique = true)
     private String email;
 
+    private String passwordHash;
+
     private String profilePicture;
 
     private Role role = Role.USER;
@@ -28,6 +72,8 @@ public class User {
     private String provider = "GOOGLE";
 
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    private NotificationPreferences notificationPreferences = new NotificationPreferences();
 
     public User() {}
 
@@ -51,6 +97,9 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
     public String getProfilePicture() { return profilePicture; }
     public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
 
@@ -62,4 +111,15 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public NotificationPreferences getNotificationPreferences() {
+        if (notificationPreferences == null) {
+            notificationPreferences = new NotificationPreferences();
+        }
+        return notificationPreferences;
+    }
+
+    public void setNotificationPreferences(NotificationPreferences notificationPreferences) {
+        this.notificationPreferences = notificationPreferences;
+    }
 }
