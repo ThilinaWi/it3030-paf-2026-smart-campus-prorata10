@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { HiOutlineX } from 'react-icons/hi';
 import IncidentForm from '../components/IncidentForm';
 import incidentService from '../services/incidentService';
 
 export default function CreateIncidentPage() {
+  const navigate = useNavigate();
   const [formKey, setFormKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,21 +60,30 @@ export default function CreateIncidentPage() {
   };
 
   return (
-    <div className="bookings-page">
-      <div className="page-header">
-        <div className="page-header-left">
-          <h1>
-            <HiOutlineExclamationCircle size={28} />
-            Create Incident Ticket
-          </h1>
+    <div className="bookings-page" id="create-incident-page">
+      <div className="booking-form-overlay incident-create-overlay">
+        <div className="booking-form-modal incident-create-modal">
+          <div className="modal-header">
+            <h2>
+              <HiOutlineExclamationCircle size={22} />
+              Create Incident Ticket
+            </h2>
+            <button className="modal-close" onClick={() => navigate('/incidents/my')}>
+              <HiOutlineX size={20} />
+            </button>
+          </div>
+
+          {success && <div className="alert alert-success"><span>{success}</span></div>}
+          {error && <div className="alert alert-error"><span>{error}</span></div>}
+
+          <IncidentForm
+            key={formKey}
+            onSubmit={handleSubmit}
+            loading={loading}
+            onCancel={() => navigate('/incidents/my')}
+            submitLabel="Create Ticket"
+          />
         </div>
-      </div>
-
-      {success && <div className="alert alert-success"><span>{success}</span></div>}
-      {error && <div className="alert alert-error"><span>{error}</span></div>}
-
-      <div className="booking-form-modal" style={{ maxWidth: '960px', margin: '0 auto' }}>
-        <IncidentForm key={formKey} onSubmit={handleSubmit} loading={loading} />
       </div>
     </div>
   );

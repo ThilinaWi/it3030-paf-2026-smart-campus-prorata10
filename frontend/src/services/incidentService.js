@@ -1,5 +1,12 @@
 import api from './api';
 
+const normalizeArrayPayload = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.content)) return payload.content;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+};
+
 const incidentService = {
   createIncident: async (data) => {
     const response = await api.post('/tickets', data);
@@ -8,7 +15,7 @@ const incidentService = {
 
   getMyIncidents: async () => {
     const response = await api.get('/tickets/my');
-    return response.data;
+    return normalizeArrayPayload(response.data);
   },
 
   getAllIncidents: async (params = {}) => {
@@ -40,7 +47,7 @@ const incidentService = {
 
   getAssignedIncidents: async () => {
     const response = await api.get('/tickets/assigned');
-    return response.data;
+    return normalizeArrayPayload(response.data);
   },
 
   getIncidentById: async (id) => {

@@ -38,12 +38,36 @@ export default function MyIncidentsPage() {
     setEditingIncident(incident);
   };
 
-  const handleEditSubmit = async ({ payload }) => {
+  const handleEditSubmit = async ({ payload, files }) => {
     if (!editingIncident) return;
     try {
       setSubmittingEdit(true);
       setError(null);
       await incidentService.updateIncident(editingIncident.id, payload);
+
+      if (files?.length) {
+        const failedUploads = [];
+        for (const file of files) {
+          try {
+            await incidentService.uploadAttachment(editingIncident.id, file);
+          } catch (uploadError) {
+            failedUploads.push({
+              fileName: file.name,
+              message: uploadError?.response?.data?.message || uploadError?.message || 'Upload failed',
+            });
+          }
+        }
+
+        if (failedUploads.length > 0) {
+          const detail = failedUploads.map((item) => `${item.fileName}: ${item.message}`).join(' | ');
+          setSuccessMsg('Incident updated, but one or more photos failed to upload.');
+          setError(detail);
+          setEditingIncident(null);
+          await loadIncidents();
+          return;
+        }
+      }
+
       setSuccessMsg('Incident updated successfully.');
       setEditingIncident(null);
       await loadIncidents();
@@ -73,7 +97,7 @@ export default function MyIncidentsPage() {
   };
 
   return (
-    <div className="bookings-page">
+    <div className="bookings-page" id="my-incidents-page">
       <div className="page-header">
         <div className="page-header-left">
           <h1>
@@ -124,7 +148,7 @@ export default function MyIncidentsPage() {
               onSubmit={handleEditSubmit}
               loading={submittingEdit}
               initialValues={editingIncident}
-              showAttachmentInput={false}
+              showAttachmentInput={true}
               submitLabel="Update Incident"
               onCancel={() => setEditingIncident(null)}
             />

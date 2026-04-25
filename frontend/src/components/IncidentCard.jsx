@@ -31,17 +31,19 @@ export default function IncidentCard({
   onDelete,
   actionLoading = false,
 }) {
+  const statusClass = STATUS_CLASS_MAP[incident.status] || 'incident-status-open';
   const canAssignTechnician = showAssignControls && incident.status === 'OPEN';
   const canOwnerModify = showOwnerActions && incident.status === 'OPEN';
+  const cardModeClass = canOwnerModify ? 'incident-card-user' : 'incident-card-staff';
 
   return (
-    <div className="incident-card">
+    <div className={`incident-card incident-card-modern ${statusClass} ${cardModeClass}`}>
       <div className="booking-card-header">
         <div className="booking-resource">
           <HiOutlineExclamationCircle size={18} />
           <span className="resource-id">{incident.title}</span>
         </div>
-        <span className={`booking-status-badge ${STATUS_CLASS_MAP[incident.status] || 'incident-status-open'}`}>
+        <span className={`booking-status-badge ${statusClass}`}>
           {incident.status}
         </span>
       </div>

@@ -3,6 +3,33 @@ import { HiOutlineExclamationCircle, HiOutlineRefresh } from 'react-icons/hi';
 import IncidentCard from '../components/IncidentCard';
 import incidentService from '../services/incidentService';
 
+const STATUS_PRIORITY = {
+  ASSIGNED: 0,
+  IN_PROGRESS: 1,
+  OPEN: 2,
+  RESOLVED: 3,
+  CLOSED: 4,
+};
+
+const normalizeStatus = (status) => String(status || '')
+  .trim()
+  .toUpperCase()
+  .replace(/[\s-]+/g, '_');
+
+const sortAssignedIncidents = (items) => [...items].sort((a, b) => {
+  const statusA = normalizeStatus(a?.status || a?.ticketStatus || a?.incidentStatus);
+  const statusB = normalizeStatus(b?.status || b?.ticketStatus || b?.incidentStatus);
+
+  const rankA = STATUS_PRIORITY[statusA] ?? 99;
+  const rankB = STATUS_PRIORITY[statusB] ?? 99;
+
+  if (rankA !== rankB) return rankA - rankB;
+
+  const createdA = new Date(a?.createdAt || 0).getTime();
+  const createdB = new Date(b?.createdAt || 0).getTime();
+  return createdB - createdA;
+});
+
 export default function TechnicianIncidentsPage() {
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +40,8 @@ export default function TechnicianIncidentsPage() {
       setLoading(true);
       setError(null);
       const data = await incidentService.getAssignedIncidents();
-      setIncidents(data || []);
+      const safeData = Array.isArray(data) ? data : [];
+      setIncidents(sortAssignedIncidents(safeData));
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load assigned incidents.');
     } finally {

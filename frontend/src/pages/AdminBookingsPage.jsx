@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useBookings } from '../hooks/useBookings';
 import { HiOutlineCalendar, HiOutlineRefresh, HiOutlineX } from 'react-icons/hi';
+import { resourceApi } from '../services/api';
 
 /**
  * Admin bookings management page — view all bookings and approve/reject.
@@ -8,6 +9,7 @@ import { HiOutlineCalendar, HiOutlineRefresh, HiOutlineX } from 'react-icons/hi'
 export default function AdminBookingsPage() {
   const [successMsg, setSuccessMsg] = useState(null);
   const [filter, setFilter] = useState('ALL');
+  const [resourceNameById, setResourceNameById] = useState({});
   const [processingBookingId, setProcessingBookingId] = useState(null);
   const [decisionModal, setDecisionModal] = useState({
     open: false,
@@ -44,6 +46,49 @@ export default function AdminBookingsPage() {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [decisionModal.open, refresh]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadResourceNames = async () => {
+      try {
+        const response = await resourceApi.getAll();
+        const resources = Array.isArray(response.data) ? response.data : [];
+        const lookup = resources.reduce((acc, resource) => {
+          if (resource?.id) {
+            acc[resource.id] = resource.name || resource.resourceName || resource.id;
+          }
+          return acc;
+        }, {});
+
+        if (!cancelled) {
+          setResourceNameById(lookup);
+        }
+      } catch {
+        // Keep admin bookings functional even if resource name lookup fails.
+      }
+    };
+
+    loadResourceNames();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const getResourceLabel = (booking) => {
+    const resourceName = typeof booking.resourceName === 'string' ? booking.resourceName.trim() : '';
+    if (resourceName && resourceName !== booking.resourceId) {
+      return resourceName;
+    }
+
+    const resolvedById = resourceNameById[booking.resourceId];
+    if (resolvedById) {
+      return resolvedById;
+    }
+
+    return resourceName || booking.resourceId || '-';
+  };
 
   const openDecisionModal = (bookingId) => {
     setDecisionModal({
@@ -285,7 +330,7 @@ export default function AdminBookingsPage() {
 
                   return (
                     <tr key={booking.id}>
-                      <td>{booking.resourceName || booking.resourceId || '-'}</td>
+                      <td>{getResourceLabel(booking)}</td>
                       <td>{formatDate(booking.date)}</td>
                       <td>{`${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}</td>
                       <td>{booking.attendees?.length || 0}</td>
