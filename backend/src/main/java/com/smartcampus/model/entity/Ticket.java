@@ -132,7 +132,21 @@ public class Ticket {
         return updatedAt;
     }
 
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
+    public LocalDateTime getFirstResponseAt() {
+        return firstResponseAt;
+    }
+
+    public void setFirstResponseAt(LocalDateTime firstResponseAt) {
+        this.firstResponseAt = firstResponseAt;
+    }
+
+    public LocalDateTime getResolvedAt() {
+        return resolvedAt;
+    }
 
     public void setResolvedAt(LocalDateTime resolvedAt) {
         this.resolvedAt = resolvedAt;
@@ -154,5 +168,19 @@ public class Ticket {
         isDeleted = deleted;
     }
 
+    //  Calculate time taken for first response (in minutes)
+    public Long getTimeToFirstResponseMinutes() {
+        if (createdAt == null || firstResponseAt == null) {
+            return null;
+        }
+        return Duration.between(createdAt, firstResponseAt).toMinutes();
+    }
 
+    //  Calculate total time taken to resolve ticket (in minutes)
+    public Long getTimeToResolutionMinutes() {
+        if (createdAt == null || resolvedAt == null) {
+            return null;
+        }
+        return Duration.between(createdAt, resolvedAt).toMinutes();
+    }
 }
