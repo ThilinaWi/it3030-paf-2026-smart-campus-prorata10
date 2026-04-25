@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useBookings } from '../hooks/useBookings';
 import BookingForm from '../components/BookingForm';
 import BookingCard from '../components/BookingCard';
@@ -8,12 +9,45 @@ import { HiOutlineCalendar, HiOutlinePlus, HiOutlineRefresh, HiOutlineX } from '
  * Bookings page — shows user's bookings and allows creating new ones.
  */
 export default function BookingsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { bookings, loading, error, refresh, createBooking, updateBooking, cancelBooking } = useBookings(false);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [prefilledResourceId, setPrefilledResourceId] = useState('');
+  const [prefilledResourceName, setPrefilledResourceName] = useState('');
+
+  const clearResourceParam = () => {
+    if (!searchParams.get('resourceId') && !searchParams.get('resourceName')) return;
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete('resourceId');
+    nextParams.delete('resourceName');
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const openNewBookingForm = () => {
+    setEditingBooking(null);
+    setPrefilledResourceId('');
+    setPrefilledResourceName('');
+    setShowForm(true);
+    setFormError(null);
+    clearResourceParam();
+  };
+
+  useEffect(() => {
+    const resourceId = searchParams.get('resourceId');
+    const resourceName = searchParams.get('resourceName') || '';
+    if (!resourceId) return;
+
+    if (!editingBooking) {
+      setPrefilledResourceId(resourceId);
+      setPrefilledResourceName(resourceName);
+      setFormError(null);
+      setShowForm(true);
+    }
+  }, [searchParams, editingBooking]);
 
   useEffect(() => {
     const pollInterval = window.setInterval(() => {
@@ -52,7 +86,10 @@ export default function BookingsPage() {
         await createBooking(bookingData);
       }
       setShowForm(false);
+      setPrefilledResourceId('');
+      setPrefilledResourceName('');
       setEditingBooking(null);
+      clearResourceParam();
       setSuccessMsg(editingBooking
         ? 'Booking updated successfully.'
         : 'Booking created successfully! It is pending approval.');
@@ -67,6 +104,9 @@ export default function BookingsPage() {
 
   const handleEdit = (booking) => {
     setEditingBooking(booking);
+    setPrefilledResourceId('');
+    setPrefilledResourceName('');
+    clearResourceParam();
     setFormError(null);
     setShowForm(true);
   };
@@ -74,6 +114,9 @@ export default function BookingsPage() {
   const closeForm = () => {
     setShowForm(false);
     setEditingBooking(null);
+    setPrefilledResourceId('');
+    setPrefilledResourceName('');
+    clearResourceParam();
     setFormError(null);
   };
 
@@ -108,7 +151,7 @@ export default function BookingsPage() {
           </button>
           <button
             className="btn btn-primary"
-            onClick={() => { setEditingBooking(null); setShowForm(true); setFormError(null); }}
+            onClick={openNewBookingForm}
             id="new-booking-btn"
           >
             <HiOutlinePlus size={18} />
@@ -144,7 +187,7 @@ export default function BookingsPage() {
               onSubmit={handleSaveBooking}
               onCancel={closeForm}
               loading={submitting}
-              initialValues={editingBooking}
+              initialValues={editingBooking || (prefilledResourceId ? { resourceId: prefilledResourceId, resourceName: prefilledResourceName } : null)}
               mode={editingBooking ? 'update' : 'create'}
             />
           </div>
@@ -170,7 +213,7 @@ export default function BookingsPage() {
             <p>Create your first booking to reserve a room, lab, or equipment.</p>
             <button
               className="btn btn-primary"
-              onClick={() => setShowForm(true)}
+              onClick={openNewBookingForm}
               style={{ marginTop: '1rem' }}
             >
               <HiOutlinePlus size={18} />

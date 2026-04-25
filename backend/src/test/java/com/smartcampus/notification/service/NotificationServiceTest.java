@@ -1,11 +1,12 @@
 package com.smartcampus.notification.service;
 
-import com.smartcampus.auth.model.Role;
-import com.smartcampus.auth.model.User;
-import com.smartcampus.auth.repository.UserRepository;
-import com.smartcampus.notification.model.Notification;
-import com.smartcampus.notification.model.NotificationType;
-import com.smartcampus.notification.repository.NotificationRepository;
+import com.smartcampus.model.entity.Notification;
+import com.smartcampus.model.entity.User;
+import com.smartcampus.model.enums.NotificationType;
+import com.smartcampus.model.enums.Role;
+import com.smartcampus.repository.NotificationRepository;
+import com.smartcampus.repository.UserRepository;
+import com.smartcampus.service.NotificationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

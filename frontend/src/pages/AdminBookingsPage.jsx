@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useBookings } from '../hooks/useBookings';
-import BookingCard from '../components/BookingCard';
 import { HiOutlineCalendar, HiOutlineRefresh, HiOutlineX } from 'react-icons/hi';
 
 /**
@@ -18,6 +17,7 @@ export default function AdminBookingsPage() {
   });
   const { bookings, loading, error, refresh, updateStatus } = useBookings(true, filter);
 
+  
   useEffect(() => {
     const pollInterval = window.setInterval(() => {
       if (!decisionModal.open) {
@@ -115,6 +115,32 @@ export default function AdminBookingsPage() {
     APPROVED: filter === 'APPROVED' ? bookings.length : '-',
     REJECTED: filter === 'REJECTED' ? bookings.length : '-',
     CANCELLED: filter === 'CANCELLED' ? bookings.length : '-',
+  };
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '-';
+    const date = new Date(`${dateStr}T00:00:00`);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
+  };
+
+  const formatTime = (timeStr) => {
+    if (!timeStr) return '-';
+    const [hours, minutes] = timeStr.split(':');
+    const h = Number.parseInt(hours, 10);
+    if (Number.isNaN(h)) return timeStr;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
+
+  const formatCreatedAt = (dateTimeStr) => {
+    if (!dateTimeStr) return '-';
+    const date = new Date(dateTimeStr);
+    return date.toLocaleString();
   };
 
   return (
@@ -236,17 +262,71 @@ export default function AdminBookingsPage() {
             </p>
           </div>
         ) : (
-          <div className="bookings-grid">
-            {bookings.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                onApprove={handleApprove}
-                onReject={openDecisionModal}
-                processingBookingId={processingBookingId}
-                isAdmin={true}
-              />
-            ))}
+          <div className="booking-admin-table-wrap">
+            <table className="booking-admin-table">
+              <thead>
+                <tr>
+                  <th>Resource</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Attendees</th>
+                  <th>Requested By</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                  <th>Decision Reason</th>
+                  <th>Created At</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => {
+                  const isProcessing = processingBookingId === booking.id;
+                  const isPending = booking.status === 'PENDING';
+
+                  return (
+                    <tr key={booking.id}>
+                      <td>{booking.resourceName || booking.resourceId || '-'}</td>
+                      <td>{formatDate(booking.date)}</td>
+                      <td>{`${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`}</td>
+                      <td>{booking.attendees?.length || 0}</td>
+                      <td>{booking.userName || booking.userId || 'Unknown user'}</td>
+                      <td>{booking.purpose || '-'}</td>
+                      <td>
+                        <span className={`booking-status-badge status-${(booking.status || 'PENDING').toLowerCase()}`}>
+                          {booking.status || 'PENDING'}
+                        </span>
+                      </td>
+                      <td>{booking.adminReason || '-'}</td>
+                      <td>{formatCreatedAt(booking.createdAt)}</td>
+                      <td>
+                        <div className="booking-admin-table-actions">
+                          {isPending ? (
+                            <>
+                              <button
+                                className="btn btn-approve"
+                                onClick={() => handleApprove(booking.id)}
+                                disabled={isProcessing}
+                              >
+                                {isProcessing ? 'Approving...' : 'Approve'}
+                              </button>
+                              <button
+                                className="btn btn-reject"
+                                onClick={() => openDecisionModal(booking.id)}
+                                disabled={isProcessing}
+                              >
+                                Reject
+                              </button>
+                            </>
+                          ) : (
+                            <span className="incident-table-subtext">No action</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

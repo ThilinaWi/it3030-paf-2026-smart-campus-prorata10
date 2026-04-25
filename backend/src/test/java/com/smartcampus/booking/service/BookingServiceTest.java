@@ -1,16 +1,20 @@
 package com.smartcampus.booking.service;
 
-import com.smartcampus.auth.model.Role;
-import com.smartcampus.booking.dto.BookingDTO;
-import com.smartcampus.booking.dto.CreateBookingRequest;
-import com.smartcampus.booking.dto.UpdateBookingRequest;
-import com.smartcampus.booking.entity.Booking;
-import com.smartcampus.booking.entity.BookingStatus;
-import com.smartcampus.booking.repository.BookingRepository;
 import com.smartcampus.exception.ConflictException;
 import com.smartcampus.exception.ForbiddenOperationException;
-import com.smartcampus.notification.model.NotificationType;
-import com.smartcampus.notification.service.NotificationService;
+import com.smartcampus.model.Resource;
+import com.smartcampus.model.dto.request.CreateBookingRequest;
+import com.smartcampus.model.dto.request.UpdateBookingRequest;
+import com.smartcampus.model.dto.response.BookingDTO;
+import com.smartcampus.model.entity.Booking;
+import com.smartcampus.model.enums.BookingStatus;
+import com.smartcampus.model.enums.NotificationType;
+import com.smartcampus.model.enums.Role;
+import com.smartcampus.repository.BookingRepository;
+import com.smartcampus.repository.ResourceRepository;
+import com.smartcampus.repository.UserRepository;
+import com.smartcampus.service.BookingService;
+import com.smartcampus.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,9 +33,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +50,12 @@ class BookingServiceTest {
     @Mock
     private NotificationService notificationService;
 
+        @Mock
+        private UserRepository userRepository;
+
+        @Mock
+        private ResourceRepository resourceRepository;
+
     @InjectMocks
     private BookingService bookingService;
 
@@ -51,6 +63,15 @@ class BookingServiceTest {
 
     @BeforeEach
     void setUp() {
+        lenient().when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        Resource activeResource = new Resource();
+        activeResource.setId("room-101");
+        activeResource.setStatus("ACTIVE");
+        activeResource.setActive(true);
+
+        lenient().when(resourceRepository.findById(anyString())).thenReturn(Optional.of(activeResource));
+
         request = new CreateBookingRequest(
                 "room-101",
                 LocalDate.now().plusDays(1),

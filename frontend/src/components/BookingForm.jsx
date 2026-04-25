@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { HiOutlineCalendar, HiOutlineClock, HiOutlineUsers, HiOutlineClipboardList } from 'react-icons/hi';
+import { resourceApi } from '../services/api';
+import bookingService from '../services/bookingService';
 
 
 /**
@@ -8,6 +10,7 @@ import { HiOutlineCalendar, HiOutlineClock, HiOutlineUsers, HiOutlineClipboardLi
 export default function BookingForm({ onSubmit, onCancel, loading, initialValues = null, mode = 'create' }) {
   const [formData, setFormData] = useState({
     resourceId: '',
+    resourceName: '',
     date: '',
     startTime: '',
     endTime: '',
@@ -15,6 +18,13 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
     attendees: '',
   });
   const [errors, setErrors] = useState({});
+  const [resources, setResources] = useState([]);
+  const [resourcesLoading, setResourcesLoading] = useState(false);
+  const [resourcesError, setResourcesError] = useState('');
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState('');
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [availabilityChecked, setAvailabilityChecked] = useState(false);
 
   const normalizeDateValue = (dateValue) => {
     if (!dateValue) return '';
@@ -65,6 +75,7 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
     if (!initialValues) {
       setFormData({
         resourceId: '',
+        resourceName: '',
         date: '',
         startTime: '',
         endTime: '',
@@ -76,6 +87,7 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
 
     setFormData({
       resourceId: initialValues.resourceId || '',
+      resourceName: initialValues.resourceName || '',
       date: initialValues.date || '',
       startTime: initialValues.startTime ? initialValues.startTime.substring(0, 5) : '',
       endTime: initialValues.endTime ? initialValues.endTime.substring(0, 5) : '',
@@ -83,6 +95,80 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
       attendees: Array.isArray(initialValues.attendees) ? initialValues.attendees.join(', ') : '',
     });
   }, [initialValues]);
+
+  useEffect(() => {
+    if (mode !== 'create') return;
+
+    const loadResources = async () => {
+      try {
+        setResourcesLoading(true);
+        setResourcesError('');
+        const response = await resourceApi.getAll();
+        setResources(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        setResourcesError('Failed to load resources. Please try again.');
+      } finally {
+        setResourcesLoading(false);
+      }
+    };
+
+    loadResources();
+  }, [mode]);
+
+  useEffect(() => {
+    const canCheck = formData.resourceId && formData.date && formData.startTime && formData.endTime;
+    if (!canCheck) {
+      setAvailabilityError('');
+      setAvailabilityLoading(false);
+      setIsAvailable(true);
+      setAvailabilityChecked(false);
+      return;
+    }
+
+    if (formData.startTime >= formData.endTime) {
+      setAvailabilityError('❌ End time must be after start time');
+      setIsAvailable(false);
+      setAvailabilityChecked(true);
+      return;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        setAvailabilityLoading(true);
+        setAvailabilityError('');
+        const result = await bookingService.checkAvailability({
+          resourceId: formData.resourceId,
+          date: formData.date,
+          startTime: `${formData.startTime}:00`,
+          endTime: `${formData.endTime}:00`,
+          excludeBookingId: mode === 'update' ? initialValues?.id : undefined,
+        });
+
+        if (cancelled) return;
+
+        setIsAvailable(Boolean(result?.available));
+        setAvailabilityChecked(true);
+        if (!result?.available) {
+          setAvailabilityError(`❌ ${result?.message || 'Selected time slot is not available'}`);
+        }
+      } catch (err) {
+        if (cancelled) return;
+        setIsAvailable(false);
+        setAvailabilityChecked(true);
+        setAvailabilityError('❌ Could not verify availability right now. Please try again.');
+      } finally {
+        if (!cancelled) {
+          setAvailabilityLoading(false);
+        }
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [formData.resourceId, formData.date, formData.startTime, formData.endTime, mode, initialValues]);
 
   const validate = () => {
     const newErrors = {};
@@ -110,7 +196,16 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'resourceId' && mode === 'create') {
+      const selected = resources.find((resource) => resource.id === value);
+      setFormData((prev) => ({
+        ...prev,
+        resourceId: value,
+        resourceName: selected?.name || '',
+      }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -119,6 +214,7 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
+    if (!isAvailable) return;
 
     const attendeeList = formData.attendees
       .split(',')
@@ -144,17 +240,49 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
       <div className="form-group">
         <label htmlFor="resourceId">
           <HiOutlineClipboardList size={16} />
-          Resource ID
+          {mode === 'create' ? 'Resource' : (formData.resourceName ? 'Resource Name' : 'Resource ID')}
         </label>
-        <input
-          type="text"
-          id="resourceId"
-          name="resourceId"
-          value={formData.resourceId}
-          onChange={handleChange}
-          placeholder="e.g., room-101, lab-A, projector-3"
-          className={errors.resourceId ? 'input-error' : ''}
-        />
+        {mode === 'create' ? (
+          <select
+            id="resourceId"
+            name="resourceId"
+            value={formData.resourceId}
+            onChange={handleChange}
+            className={errors.resourceId ? 'input-error' : ''}
+            disabled={resourcesLoading}
+          >
+            <option value="">
+              {resourcesLoading ? 'Loading resources...' : 'Select resource'}
+            </option>
+            {resources.map((resource) => (
+              <option key={resource.id} value={resource.id}>
+                {resource.name} ({resource.type?.replace('_', ' ') || 'N/A'})
+              </option>
+            ))}
+          </select>
+        ) : formData.resourceName ? (
+          <>
+            <input
+              type="text"
+              id="resourceName"
+              name="resourceName"
+              value={formData.resourceName}
+              readOnly
+            />
+            <input type="hidden" name="resourceId" value={formData.resourceId} />
+          </>
+        ) : (
+          <input
+            type="text"
+            id="resourceId"
+            name="resourceId"
+            value={formData.resourceId}
+            onChange={handleChange}
+            placeholder="e.g., room-101, lab-A, projector-3"
+            className={errors.resourceId ? 'input-error' : ''}
+          />
+        )}
+        {resourcesError && mode === 'create' && <span className="field-error">{resourcesError}</span>}
         {errors.resourceId && <span className="field-error">{errors.resourceId}</span>}
       </div>
 
@@ -246,10 +374,15 @@ export default function BookingForm({ onSubmit, onCancel, loading, initialValues
         <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={loading}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={loading} id="submit-booking-btn">
+        <button type="submit" className="btn btn-primary" disabled={loading || availabilityLoading || !isAvailable} id="submit-booking-btn">
           {loading ? (mode === 'update' ? 'Updating...' : 'Creating...') : (mode === 'update' ? 'Update Booking' : 'Create Booking')}
         </button>
       </div>
+      {availabilityLoading && <span className="field-help">⏳ Checking availability...</span>}
+      {!availabilityLoading && availabilityChecked && isAvailable && !availabilityError && (
+        <span className="field-help" style={{ color: '#15803d' }}>✅ Resource is available for selected time</span>
+      )}
+      {availabilityError && <span className="field-error">{availabilityError}</span>}
     </form>
   );
 }
