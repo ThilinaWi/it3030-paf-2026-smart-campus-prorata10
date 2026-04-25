@@ -18,6 +18,7 @@ import ResourceList from '../components/resources/ResourceList';
 import ResourceDetail from '../components/resources/ResourceDetail';
 import ResourceForm from '../components/resources/ResourceForm';
 
+// This component redirects users to their respective dashboard based on role
 function RoleDashboardRedirect() {
   const { user } = useAuth();
 
@@ -29,21 +30,22 @@ function RoleDashboardRedirect() {
     return <Navigate to="/dashboard/technician" replace />;
   }
 
+  // Default: normal user
   return <Navigate to="/dashboard/user" replace />;
 }
 
 /**
- * Application route definitions.
+ * Main application routing configuration
  */
 export default function AppRoutes() {
   return (
-    
     <Routes>
-      {/* Public Routes */}
+
+      {/* ---------- Public Routes (No login required) ---------- */}
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
 
-      {/* Protected Routes */}
+      {/* ---------- Dashboard Routing (Auto redirect based on role) ---------- */}
       <Route
         path="/dashboard"
         element={
@@ -52,6 +54,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Role-based Dashboards ---------- */}
       <Route
         path="/dashboard/user"
         element={
@@ -76,6 +80,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Notifications & Settings ---------- */}
       <Route
         path="/notifications"
         element={
@@ -108,6 +114,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Redirect /settings → default tab */}
       <Route
         path="/settings"
         element={
@@ -116,6 +124,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Booking Module ---------- */}
       <Route
         path="/bookings"
         element={
@@ -132,6 +142,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Admin User Management ---------- */}
       <Route
         path="/admin/users"
         element={
@@ -140,6 +152,10 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Incident Module ---------- */}
+
+      {/* Create incident (User only) */}
       <Route
         path="/incidents/create"
         element={
@@ -148,6 +164,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* User's own incidents */}
       <Route
         path="/incidents/my"
         element={
@@ -156,6 +174,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Admin view all incidents */}
       <Route
         path="/incidents/admin"
         element={
@@ -164,6 +184,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Technician assigned incidents */}
       <Route
         path="/incidents/assigned"
         element={
@@ -172,6 +194,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* View incident details (All roles) */}
       <Route
         path="/incidents/:id"
         element={
@@ -180,6 +204,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ---------- Resource Module ---------- */}
       <Route
         path="/resources"
         element={
@@ -196,6 +222,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Admin-only resource management */}
       <Route
         path="/resources/create"
         element={
@@ -213,9 +241,10 @@ export default function AppRoutes() {
         }
       />
 
-      {/* Default redirect */}
+      {/* ---------- Default Redirects ---------- */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
     </Routes>
   );
 }
