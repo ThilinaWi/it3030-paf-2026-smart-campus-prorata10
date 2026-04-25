@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HiOutlineCalendar, HiOutlineExclamationCircle, HiOutlineUser } from 'react-icons/hi';
 
+// Maps each incident status to a CSS class for styling
 const STATUS_CLASS_MAP = {
   OPEN: 'incident-status-open',
   ASSIGNED: 'incident-status-assigned',
@@ -9,6 +10,7 @@ const STATUS_CLASS_MAP = {
   CLOSED: 'incident-status-closed',
 };
 
+// Maps each priority level to a CSS class for styling
 const PRIORITY_CLASS_MAP = {
   HIGH: 'incident-priority-high',
   MEDIUM: 'incident-priority-medium',
@@ -31,9 +33,16 @@ export default function IncidentCard({
   onDelete,
   actionLoading = false,
 }) {
+  // Get CSS class based on incident status
   const statusClass = STATUS_CLASS_MAP[incident.status] || 'incident-status-open';
+
+  // Admin can assign technician only when the incident is still OPEN
   const canAssignTechnician = showAssignControls && incident.status === 'OPEN';
+
+  // User can edit/delete only their own OPEN incidents
   const canOwnerModify = showOwnerActions && incident.status === 'OPEN';
+
+  // Different card style depending on user/staff view
   const cardModeClass = canOwnerModify ? 'incident-card-user' : 'incident-card-staff';
 
   return (
@@ -43,17 +52,21 @@ export default function IncidentCard({
           <HiOutlineExclamationCircle size={18} />
           <span className="resource-id">{incident.title}</span>
         </div>
+
+        {/* Shows current incident status */}
         <span className={`booking-status-badge ${statusClass}`}>
           {incident.status}
         </span>
       </div>
 
       <div className="booking-card-body">
+        {/* Shows incident created date/time */}
         <div className="booking-time">
           <HiOutlineCalendar size={16} />
           <span>{new Date(incident.createdAt).toLocaleString()}</span>
         </div>
 
+        {/* Shows category and priority */}
         <div className="incident-badge-row">
           <span className="incident-category-chip">{incident.category}</span>
           <span className={`incident-priority-chip ${PRIORITY_CLASS_MAP[incident.priority] || 'incident-priority-low'}`}>
@@ -61,14 +74,17 @@ export default function IncidentCard({
           </span>
         </div>
 
+        {/* Shows incident description */}
         <p className="booking-purpose">{incident.description}</p>
 
+        {/* Shows requester name/id when admin or staff needs to see who reported it */}
         {showRequestedUser && (
           <p className="booking-requester">
             <HiOutlineUser size={14} /> Requested by: <strong>{requestedUserName || incident.userId}</strong>
           </p>
         )}
 
+        {/* Shows assigned technician name */}
         {showAssignee && (
           <p className="booking-requester">
             <HiOutlineUser size={14} /> Assigned to: <strong>{incident.technicianName || 'Unassigned'}</strong>
@@ -78,9 +94,12 @@ export default function IncidentCard({
 
       <div className="booking-card-footer">
         <div className="booking-actions">
+          {/* Opens full incident detail page */}
           <Link className="btn btn-secondary" to={`/incidents/${incident.id}`}>
             View Details
           </Link>
+
+          {/* Owner actions are shown only for OPEN incidents */}
           {canOwnerModify && (
             <>
               <button
@@ -103,6 +122,7 @@ export default function IncidentCard({
           )}
         </div>
 
+        {/* Admin inline assignment section */}
         {canAssignTechnician && (
           <div className="incident-assign-inline">
             <select
@@ -117,6 +137,8 @@ export default function IncidentCard({
                 </option>
               ))}
             </select>
+
+            {/* Assign button calls parent function with incident id and technician id */}
             <button
               className="btn btn-primary"
               disabled={!selectedTechnicianId || assigning}

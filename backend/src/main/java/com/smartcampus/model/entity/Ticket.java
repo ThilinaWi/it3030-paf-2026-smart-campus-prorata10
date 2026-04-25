@@ -1,8 +1,8 @@
 package com.smartcampus.model.entity;
 
-import com.smartcampus.model.enums.TicketCategory;
-import com.smartcampus.model.enums.TicketPriority;
-import com.smartcampus.model.enums.TicketStatus;
+import com.smartcampus.model.enums.TicketCategory; // Ticket category (IT, Maintenance, etc.)
+import com.smartcampus.model.enums.TicketPriority; // Priority level
+import com.smartcampus.model.enums.TicketStatus; // Current status
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,39 +11,39 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "incident_tickets")
+@Document(collection = "incident_tickets") // MongoDB collection name
 public class Ticket {
 
     @Id
-    private String id;
+    private String id; // Unique ticket ID
 
-    private String userId;
+    private String userId; // User who created the ticket
 
-    private String title;
+    private String title; // Short title of the issue
 
-    private TicketCategory category;
+    private TicketCategory category; // Type of issue
 
-    private String description;
+    private String description; // Detailed explanation
 
-    private TicketPriority priority;
+    private TicketPriority priority; // Urgency level
 
-    private TicketStatus status;
+    private TicketStatus status; // Current status (OPEN, CLOSED, etc.)
 
-    private String technicianId;
+    private String technicianId; // Assigned technician ID
 
-    private List<String> attachments = new ArrayList<>();
+    private List<String> attachments = new ArrayList<>(); // List of file attachments
 
-    private List<TicketHistoryEntry> history = new ArrayList<>();
+    private List<TicketHistoryEntry> history = new ArrayList<>(); // History of actions on this ticket
 
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // When ticket was created
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // Last updated time
 
-    private LocalDateTime firstResponseAt;
+    private LocalDateTime firstResponseAt; // First response time
 
-    private LocalDateTime resolvedAt;
+    private LocalDateTime resolvedAt; // When ticket was resolved
 
-    private boolean isDeleted = false;
+    private boolean isDeleted = false; // Soft delete flag
 
     public Ticket() {
     }
@@ -168,6 +168,7 @@ public class Ticket {
         isDeleted = deleted;
     }
 
+    //  Calculate time taken for first response (in minutes)
     public Long getTimeToFirstResponseMinutes() {
         if (createdAt == null || firstResponseAt == null) {
             return null;
@@ -175,6 +176,7 @@ public class Ticket {
         return Duration.between(createdAt, firstResponseAt).toMinutes();
     }
 
+    //  Calculate total time taken to resolve ticket (in minutes)
     public Long getTimeToResolutionMinutes() {
         if (createdAt == null || resolvedAt == null) {
             return null;

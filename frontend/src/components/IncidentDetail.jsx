@@ -13,6 +13,7 @@ import {
 import IncidentUpdateList from './IncidentUpdateList';
 import IncidentTimeline from './IncidentTimeline';
 
+// Maps incident status to CSS class names
 const STATUS_CLASS_MAP = {
   OPEN: 'incident-status-open',
   ASSIGNED: 'incident-status-assigned',
@@ -21,12 +22,14 @@ const STATUS_CLASS_MAP = {
   CLOSED: 'incident-status-closed',
 };
 
+// Maps priority level to CSS class names
 const PRIORITY_CLASS_MAP = {
   HIGH: 'incident-priority-high',
   MEDIUM: 'incident-priority-medium',
   LOW: 'incident-priority-low',
 };
 
+// Controls which next status options are allowed based on current role and current status
 const getAllowedNextStatuses = (currentStatus, currentRole) => {
   if (currentRole === 'TECHNICIAN') {
     if (currentStatus === 'ASSIGNED') return ['IN_PROGRESS'];
@@ -42,6 +45,7 @@ const getAllowedNextStatuses = (currentStatus, currentRole) => {
   return [];
 };
 
+// Calculates resolution time using created and resolved timestamps
 const getResolutionTime = (createdAt, resolvedAt) => {
   if (!createdAt || !resolvedAt) return null;
 
@@ -53,6 +57,7 @@ const getResolutionTime = (createdAt, resolvedAt) => {
   return `${hours}h ${minutes}m`;
 };
 
+// Formats date/time for display in the incident detail page
 const formatDateTimeDetail = (value) => {
   if (!value) return '-';
   const date = new Date(value);
@@ -67,6 +72,7 @@ const formatDateTimeDetail = (value) => {
   return `${datePart} • ${timePart}`;
 };
 
+// Formats minutes into short readable time, such as 45 min or 2h 10m
 const formatMinutesCompact = (minutes) => {
   if (minutes == null || Number.isNaN(minutes) || minutes < 0) return null;
   if (minutes < 60) return `${minutes} min`;
@@ -85,11 +91,19 @@ export default function IncidentDetail({
   onUpdateSubmit,
   onDownloadAttachment,
 }) {
+  // Decide next valid statuses based on logged-in role
   const allowedNextStatuses = getAllowedNextStatuses(incident?.status, currentRole);
+
+  // Selected status for update dropdown
   const [status, setStatus] = useState(allowedNextStatuses[0] || incident?.status || 'OPEN');
+
+  // Progress note typed by technician
   const [message, setMessage] = useState('');
+
+  // Only admin/technician can update status, and only if next status is allowed
   const canUpdateStatus = currentRole !== 'USER' && allowedNextStatuses.length > 0;
 
+  // Extracts clean file name from stored file path
   const getFileNameFromPath = (path) => {
     if (!path) return 'Attachment';
     const lastSegment = path.split('/').pop() || path;
@@ -98,17 +112,20 @@ export default function IncidentDetail({
     return underscoreIndex > -1 ? normalized.substring(underscoreIndex + 1) : normalized;
   };
 
+  // Checks whether attachment is an image file for preview option
   const isImageAttachment = (path) => {
     const lower = (path || '').toLowerCase();
     return ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'].some((ext) => lower.endsWith(ext));
   };
 
+  // Reset selected status when incident status or role changes
   useEffect(() => {
     setStatus(allowedNextStatuses[0] || incident?.status || 'OPEN');
   }, [incident?.status, currentRole]);
 
   if (!incident) return null;
 
+  // Resolution and first response time shown in SLA section
   const resolutionDuration =
     formatMinutesCompact(incident.timeToResolutionMinutes) ||
     getResolutionTime(incident.createdAt, incident.resolvedAt);

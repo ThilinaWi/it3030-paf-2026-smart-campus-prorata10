@@ -7,21 +7,29 @@ import incidentService from '../services/incidentService';
 
 export default function CreateIncidentPage() {
   const navigate = useNavigate();
+
+  // Used to reset the form after successful submission
   const [formKey, setFormKey] = useState(0);
+
+  // Page states for loading, error, and success messages
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
+  // Handles incident form submission
   const handleSubmit = async ({ payload, files }) => {
     try {
       setLoading(true);
       setError(null);
       setSuccess(null);
 
+      // First create the incident ticket
       const created = await incidentService.createIncident(payload);
 
+      // If photos are selected, upload them one by one after ticket creation
       if (files?.length) {
         const failedUploads = [];
+
         for (const file of files) {
           try {
             await incidentService.uploadAttachment(created.id, file);
@@ -33,6 +41,7 @@ export default function CreateIncidentPage() {
           }
         }
 
+        // If ticket created but some uploads failed, show partial success message
         if (failedUploads.length > 0) {
           const detail = failedUploads.map((item) => `${item.fileName}: ${item.message}`).join(' | ');
           setSuccess('Incident ticket created, but one or more attachments failed to upload.');
@@ -42,9 +51,11 @@ export default function CreateIncidentPage() {
         }
       }
 
+      // Show success message and reset form
       setSuccess('Incident ticket created successfully.');
       setFormKey((prev) => prev + 1);
     } catch (err) {
+      // Handles backend connection and authorization errors
       if (!err.response) {
         setError('Unable to reach backend. Check if backend is running on http://localhost:8080.');
       } else if (err.response.status === 403) {
@@ -68,14 +79,18 @@ export default function CreateIncidentPage() {
               <HiOutlineExclamationCircle size={22} />
               Create Incident Ticket
             </h2>
+
+            {/* Close button navigates back to user's incidents page */}
             <button className="modal-close" onClick={() => navigate('/incidents/my')}>
               <HiOutlineX size={20} />
             </button>
           </div>
 
+          {/* Success and error feedback messages */}
           {success && <div className="alert alert-success"><span>{success}</span></div>}
           {error && <div className="alert alert-error"><span>{error}</span></div>}
 
+          {/* Reusable incident form component */}
           <IncidentForm
             key={formKey}
             onSubmit={handleSubmit}
