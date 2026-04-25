@@ -115,6 +115,242 @@
             "description": "Returns currently authenticated user profile. Requires Bearer token."
           },
           "response": []
+        },
+        {
+          "name": "Register Local User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@campus.edu\",\n  \"password\": \"P@ssw0rd123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a local user with name, email, and password."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Local User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@campus.edu\",\n  \"password\": \"P@ssw0rd123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login/local",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                "local"
+              ]
+            },
+            "description": "Login using local email/password."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Current User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"phoneNumber\": \"+94770000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Update current authenticated user's profile details."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me/profile-picture",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me",
+                "profile-picture"
+              ]
+            },
+            "description": "Upload profile picture for the current user using multipart/form-data."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -375,6 +611,68 @@
           "response": []
         },
         {
+          "name": "Check Booking Availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/check-availability?resourceId={{resourceId}}&date=2026-05-01&startTime=09:00:00&endTime=10:00:00",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "check-availability"
+              ],
+              "query": [
+                {
+                  "key": "resourceId",
+                  "value": "{{resourceId}}"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-05-01"
+                },
+                {
+                  "key": "startTime",
+                  "value": "09:00:00"
+                },
+                {
+                  "key": "endTime",
+                  "value": "10:00:00"
+                }
+              ]
+            },
+            "description": "Check if a resource is available for the provided date/time range."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Update My Booking",
           "event": [
             {
@@ -479,7 +777,14 @@
                   "const data = pm.response.json();",
                   "pm.test('Response is an array', function () {",
                   "  pm.expect(data).to.be.an('array');",
-                  "});"
+                  "});",
+                  "",
+                  "let __data = null;",
+                  "try { __data = pm.response.json(); } catch (e) { __data = null; }",
+                  "const __list = Array.isArray(__data) ? __data : [];",
+                  "if (Array.isArray(__list) && __list.length > 0 && __list[0] && __list[0].id) {",
+                  "  pm.collectionVariables.set('bookingId', __list[0].id);",
+                  "}"
                 ]
               }
             }
@@ -674,7 +979,31 @@
             },
             "description": "Get a single ticket by id (USER owner, ADMIN, or assigned TECHNICIAN)."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Upload Attachment",
@@ -705,7 +1034,83 @@
             },
             "description": "Upload one attachment file (max 5MB) to a ticket."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Download Attachment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tickets/{{ticketId}}/attachments/download?path={{attachmentPath}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticketId}}",
+                "attachments",
+                "download"
+              ],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "{{attachmentPath}}"
+                }
+              ]
+            },
+            "description": "Download a previously uploaded ticket attachment by storage path."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get All Tickets (ADMIN)",
@@ -725,7 +1130,38 @@
             },
             "description": "Admin endpoint to list all incident tickets."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}",
+                  "",
+                  "let __data = null;",
+                  "try { __data = pm.response.json(); } catch (e) { __data = null; }",
+                  "const __list = Array.isArray(__data?.content) ? __data.content : (Array.isArray(__data) ? __data : []);",
+                  "if (Array.isArray(__list) && __list.length > 0 && __list[0] && __list[0].id) {",
+                  "  pm.collectionVariables.set('ticketId', __list[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Assign Technician (ADMIN)",
@@ -760,7 +1196,31 @@
             },
             "description": "Assign a technician to a ticket; status becomes ASSIGNED."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Assigned Tickets (TECHNICIAN)",
@@ -780,7 +1240,38 @@
             },
             "description": "List tickets assigned to currently authenticated TECHNICIAN."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}",
+                  "",
+                  "let __data = null;",
+                  "try { __data = pm.response.json(); } catch (e) { __data = null; }",
+                  "const __list = Array.isArray(__data) ? __data : [];",
+                  "if (Array.isArray(__list) && __list.length > 0 && __list[0] && __list[0].id) {",
+                  "  pm.collectionVariables.set('ticketId', __list[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Ticket Status (TECHNICIAN)",
@@ -815,7 +1306,31 @@
             },
             "description": "Technician status transitions: ASSIGNED->IN_PROGRESS->RESOLVED->CLOSED."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Add Update Message (TECHNICIAN)",
@@ -850,7 +1365,31 @@
             },
             "description": "Add technician progress note and notify ticket owner."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Get Ticket Updates",
@@ -871,7 +1410,31 @@
             },
             "description": "Fetch update logs for a ticket (allowed: owner/admin/assigned technician)."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -1101,6 +1664,779 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Resources",
+      "item": [
+        {
+          "name": "Get All Resources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources"
+              ]
+            },
+            "description": "Get all resources (optionally supports name, type, minCapacity, location query filters)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}",
+                  "",
+                  "let __data = null;",
+                  "try { __data = pm.response.json(); } catch (e) { __data = null; }",
+                  "const __list = Array.isArray(__data) ? __data : [];",
+                  "if (Array.isArray(__list) && __list.length > 0 && __list[0] && __list[0].id) {",
+                  "  pm.collectionVariables.set('resourceId', __list[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Resource By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/{{resourceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resourceId}}"
+              ]
+            },
+            "description": "Fetch one resource by id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Resource (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lab A-201\",\n  \"type\": \"LAB\",\n  \"capacity\": 40,\n  \"location\": \"Engineering Block A\",\n  \"description\": \"Computer lab with 40 seats\",\n  \"availabilityWindow\": \"08:00-18:00\",\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resources",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources"
+              ]
+            },
+            "description": "Create resource (ADMIN only)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Resource (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lab A-201 Updated\",\n  \"type\": \"LAB\",\n  \"capacity\": 45,\n  \"location\": \"Engineering Block A\",\n  \"description\": \"Updated resource details\",\n  \"availabilityWindow\": \"08:00-19:00\",\n  \"isActive\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/{{resourceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resourceId}}"
+              ]
+            },
+            "description": "Update resource by id (ADMIN only)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Resource Status (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/{{resourceId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resourceId}}",
+                "status"
+              ]
+            },
+            "description": "Activate/deactivate a resource (ADMIN only)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Resource (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/resources/{{resourceId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "resources",
+                "{{resourceId}}"
+              ]
+            },
+            "description": "Delete a resource by id (ADMIN only)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Analytics",
+      "item": [
+        {
+          "name": "Top Resources",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics/top-resources?limit=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "top-resources"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Peak Hours",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics/peak-hours",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "peak-hours"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Booking Trends",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics/booking-trends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "booking-trends"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Incidents Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/analytics/incidents-summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics",
+                "incidents-summary"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Preferences",
+      "item": [
+        {
+          "name": "Get Notification Preferences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "preferences"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Notification Preferences",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statusUpdates\": true,\n  \"technicianUpdates\": true,\n  \"assignments\": true,\n  \"system\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/preferences",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "preferences"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Incident Legacy Endpoints",
+      "item": [
+        {
+          "name": "Update Incident Status (Legacy)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{ticketId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "incidents",
+                "{{ticketId}}",
+                "status"
+              ]
+            },
+            "description": "Compatibility endpoint that also updates ticket status."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Incident (Legacy)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated incident title\",\n  \"description\": \"Updated incident description\",\n  \"category\": \"EQUIPMENT\",\n  \"priority\": \"MEDIUM\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "incidents",
+                "{{ticketId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Incident (Legacy)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/incidents/{{ticketId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "incidents",
+                "{{ticketId}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status code is success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "",
+                  "const ctype = (pm.response.headers.get('Content-Type') || '').toLowerCase();",
+                  "if (ctype.includes('application/json') && pm.response.text()) {",
+                  "  try {",
+                  "    pm.response.json();",
+                  "  } catch (e) {",
+                  "    pm.test('Response body is valid JSON', function () {",
+                  "      throw e;",
+                  "    });",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "auth": {
@@ -1152,6 +2488,14 @@
     },
     {
       "key": "technicianId",
+      "value": ""
+    },
+    {
+      "key": "resourceId",
+      "value": ""
+    },
+    {
+      "key": "attachmentPath",
       "value": ""
     }
   ]
