@@ -1,10 +1,13 @@
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 
 export default function IncidentUpdateList({ updates }) {
+
+  // Formats date and time for each update message
   const formatDate = (value) => {
     if (!value) return 'Date unavailable';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return 'Date unavailable';
+
     return date.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -12,9 +15,10 @@ export default function IncidentUpdateList({ updates }) {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
-    }).replace(',', ' -');
+    }).replace(',', ' -'); // small formatting tweak
   };
 
+  // If no updates available, show empty state message
   if (!updates || updates.length === 0) {
     return (
       <div className="empty-state" style={{ padding: '1.5rem' }}>
@@ -27,13 +31,21 @@ export default function IncidentUpdateList({ updates }) {
   return (
     <div className="incident-updates-list">
       {updates.map((update, index) => (
-        <div className="incident-update-item" key={update.id || `${update.technicianId || 'tech'}-${update.createdAt || index}`}>
+        <div
+          className="incident-update-item"
+          key={update.id || `${update.technicianId || 'tech'}-${update.createdAt || index}`}
+        >
+          {/* Shows technician name and time */}
           <div className="incident-update-meta">
-            <span className="incident-update-author">{update.technicianName || update.technicianId || 'Technician'}</span>
+            <span className="incident-update-author">
+              {update.technicianName || update.technicianId || 'Technician'}
+            </span>
             <span className="incident-update-time">
               {formatDate(update.createdAt)}
             </span>
           </div>
+
+          {/* Update message content */}
           <p>"{update.message}"</p>
         </div>
       ))}
