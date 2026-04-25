@@ -139,7 +139,7 @@ export default function Navbar() {
           >
             <span>Dashboard</span>
           </Link>
-          {user?.role !== 'ADMIN' && (
+          {user?.role === 'USER' && (
             <Link
               to="/bookings"
               className={`nav-link ${location.pathname === '/bookings' ? 'active' : ''}`}
@@ -171,14 +171,16 @@ export default function Navbar() {
               <span>Assigned Incidents</span>
             </Link>
           )}
-          <Link
-            to="/resources"
-            className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
-            id="nav-resources"
-            onClick={closeSidebar}
-          >
-            <span>Resource</span>
-          </Link>
+          {user?.role !== 'TECHNICIAN' && (
+            <Link
+              to="/resources"
+              className={`nav-link ${location.pathname.startsWith('/resources') ? 'active' : ''}`}
+              id="nav-resources"
+              onClick={closeSidebar}
+            >
+              <span>Resource</span>
+            </Link>
+          )}
           {user?.role === 'ADMIN' && (
             <>
               <Link

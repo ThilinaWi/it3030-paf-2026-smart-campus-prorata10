@@ -32,6 +32,41 @@ import incidentService from '../services/incidentService';
 import StatsCard from '../components/StatsCard';
 import ChartCard from '../components/ChartCard';
 
+const normalizeStatus = (status) => String(status || '')
+  .trim()
+  .toUpperCase()
+  .replace(/[\s-]+/g, '_');
+
+const toArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.content)) return value.content;
+  if (Array.isArray(value?.data)) return value.data;
+  return [];
+};
+
+const getIncidentStatus = (incident) => normalizeStatus(
+  incident?.status || incident?.ticketStatus || incident?.incidentStatus,
+);
+
+const isInProgressStatus = (status) => (
+  status === 'IN_PROGRESS'
+  || status === 'INPROGRESS'
+  || status.includes('IN_PROGRESS')
+  || status.includes('INPROGRESS')
+);
+
+const REQUEST_TIMEOUT_MS = 10000;
+
+const withTimeout = (promise, timeoutMs = REQUEST_TIMEOUT_MS) => {
+  let timeoutId;
+
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Request timeout')), timeoutMs);
+  });
+
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+};
+
 /**
  * Dashboard page — main landing page for authenticated users.
  */
@@ -128,25 +163,25 @@ export default function DashboardPage() {
 
         if (user.role === 'USER') {
           const [bookingsResult, incidentsResult] = await Promise.allSettled([
-            bookingService.getMyBookings(),
-            incidentService.getMyIncidents(),
+            withTimeout(bookingService.getMyBookings()),
+            withTimeout(incidentService.getMyIncidents()),
           ]);
 
           if (cancelled) return;
 
           const activeStatuses = new Set(['OPEN', 'ASSIGNED', 'IN_PROGRESS']);
-          const safeBookings = bookingsResult.status === 'fulfilled' && Array.isArray(bookingsResult.value)
-            ? bookingsResult.value
+          const safeBookings = bookingsResult.status === 'fulfilled'
+            ? toArray(bookingsResult.value)
             : [];
-          const safeIncidents = incidentsResult.status === 'fulfilled' && Array.isArray(incidentsResult.value)
-            ? incidentsResult.value
+          const safeIncidents = incidentsResult.status === 'fulfilled'
+            ? toArray(incidentsResult.value)
             : [];
 
           setRoleCounts({
             loading: false,
             myBookings: safeBookings.length,
             myIncidents: safeIncidents.length,
-            myActiveIncidents: safeIncidents.filter((incident) => activeStatuses.has(incident?.status)).length,
+            myActiveIncidents: safeIncidents.filter((incident) => activeStatuses.has(getIncidentStatus(incident))).length,
             assignedIncidents: 0,
             inProgressAssigned: 0,
           });
@@ -154,30 +189,26 @@ export default function DashboardPage() {
         }
 
         if (user.role === 'TECHNICIAN') {
-          const [bookingsResult, assignedResult] = await Promise.allSettled([
-            bookingService.getMyBookings(),
-            incidentService.getAssignedIncidents(),
+          const [assignedResult] = await Promise.allSettled([
+            withTimeout(incidentService.getAssignedIncidents()),
           ]);
 
           if (cancelled) return;
 
-          const safeBookings = bookingsResult.status === 'fulfilled' && Array.isArray(bookingsResult.value)
-            ? bookingsResult.value
-            : [];
-          const safeAssigned = assignedResult.status === 'fulfilled' && Array.isArray(assignedResult.value)
-            ? assignedResult.value
+          const safeAssigned = assignedResult.status === 'fulfilled'
+            ? toArray(assignedResult.value)
             : [];
 
           setRoleCounts({
             loading: false,
-            myBookings: safeBookings.length,
+            myBookings: 0,
             myIncidents: 0,
             myActiveIncidents: 0,
             assignedIncidents: safeAssigned.length,
-            inProgressAssigned: safeAssigned.filter((incident) => incident?.status === 'IN_PROGRESS').length,
+            inProgressAssigned: safeAssigned.filter((incident) => isInProgressStatus(getIncidentStatus(incident))).length,
           });
         }
-      } catch (error) {
+      } catch {
         if (cancelled) return;
         setRoleCounts((prev) => ({ ...prev, loading: false }));
       }
@@ -190,7 +221,7 @@ export default function DashboardPage() {
     };
   }, [user?.role]);
 
-  const pieColors = ['#3b82f6', '#f59e0b', '#eab308', '#22c55e'];
+  const pieColors = ['#0d9373', '#14b8a0', '#0891b2', '#e8941a'];
   const tooltipStyle = {
     borderRadius: '10px',
     border: '1px solid #e2e8f0',
@@ -218,25 +249,25 @@ export default function DashboardPage() {
       title: 'Total Bookings',
       value: incidentsSummary.totalBookings,
       helper: loadingAnalytics ? 'Loading...' : 'All recorded booking requests',
-      accent: 'bg-blue-500',
-      iconBg: 'bg-blue-100',
-      iconColor: 'text-blue-700',
+      accent: 'bg-emerald-500',
+      iconBg: 'bg-emerald-100',
+      iconColor: 'text-emerald-700',
       icon: <HiOutlineCalendar size={18} />,
     },
     {
       title: 'Total Incidents',
       value: incidentsSummary.totalIncidents,
       helper: loadingAnalytics ? 'Loading...' : 'Total non-deleted incidents',
-      accent: 'bg-orange-500',
-      iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-700',
+      accent: 'bg-cyan-500',
+      iconBg: 'bg-cyan-100',
+      iconColor: 'text-cyan-700',
       icon: <HiOutlineChartBar size={18} />,
     },
     {
       title: 'Active Incidents',
       value: incidentsSummary.activeIncidents,
       helper: loadingAnalytics ? 'Loading...' : 'Open and in-progress incidents',
-      accent: 'bg-yellow-500',
+      accent: 'bg-amber-500',
       iconBg: 'bg-amber-100',
       iconColor: 'text-amber-700',
       icon: <HiOutlineExclamationCircle size={18} />,
@@ -245,9 +276,9 @@ export default function DashboardPage() {
       title: 'Resolved Incidents',
       value: incidentsSummary.resolvedIncidents,
       helper: loadingAnalytics ? 'Loading...' : 'Incidents marked resolved',
-      accent: 'bg-green-500',
-      iconBg: 'bg-green-100',
-      iconColor: 'text-green-700',
+      accent: 'bg-teal-500',
+      iconBg: 'bg-teal-100',
+      iconColor: 'text-teal-700',
       icon: <HiOutlineCheckCircle size={18} />,
     },
   ];
@@ -464,15 +495,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: '#ecfeff', color: '#0e7490' }}>
-              <HiOutlineCalendar size={22} />
-            </div>
-            <div className="stat-info">
-              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.myBookings}</span>
-              <span className="stat-label">My Bookings</span>
-            </div>
-          </div>
         </div>
 
         <div className="dashboard-section">
@@ -484,14 +506,6 @@ export default function DashboardPage() {
               </div>
               <h3>Assigned Incidents</h3>
               <p>View and update incidents assigned to you.</p>
-            </Link>
-
-            <Link to="/bookings" className="action-card">
-              <div className="action-icon" style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>
-                <HiOutlineCalendar size={22} />
-              </div>
-              <h3>Bookings</h3>
-              <p>Review booking information relevant to your workflow.</p>
             </Link>
 
             <Link to="/notifications" className="action-card">
@@ -508,81 +522,70 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-100/60 p-4 md:p-6" id="dashboard-page">
-      <div className="mx-auto w-full max-w-7xl space-y-5 md:space-y-6">
-        <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-linear-to-r from-slate-700 via-slate-600 to-slate-500 p-3.5 text-white shadow-sm md:p-4">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-white/10" />
-          <div className="pointer-events-none absolute -bottom-14 right-12 h-32 w-32 rounded-full bg-white/10" />
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="relative z-10">
-              <h1 className="text-xl font-bold md:text-2xl lg:text-3xl">
-                {getGreeting()}, {user?.name?.split(' ')[0]}
-              </h1>
-              <p className="mt-1 text-xs text-slate-100/90 md:text-sm">
-                Smart Campus admin analytics dashboard with real-time booking and incident insights.
-              </p>
-            </div>
-            <div className="relative z-10 rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold text-white md:text-sm">
-              <p className="text-[10px] uppercase tracking-wide text-slate-100/90">Today</p>
-              <p>
-                {new Date().toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-            </div>
-          </div>
+    <div className="dashboard-page admin-dashboard-page" id="dashboard-page">
+      <section className="admin-analytics-hero">
+        <div className="admin-analytics-hero-copy">
+          <h1>
+            {getGreeting()}, {user?.name?.split(' ')[0]}
+          </h1>
+          <p>Smart Campus admin analytics dashboard with real-time booking and incident insights.</p>
         </div>
 
-        {analyticsError ? (
-          <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {analyticsError}
-          </div>
-        ) : null}
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {statCards.map((card) => (
-            <StatsCard
-              key={card.title}
-              title={card.title}
-              value={card.value}
-              helper={card.helper}
-              accent={card.accent}
-              icon={card.icon}
-              iconBg={card.iconBg}
-              iconColor={card.iconColor}
-            />
-          ))}
+        <div className="admin-analytics-hero-date">
+          <p className="admin-analytics-hero-date-label">Today</p>
+          <p>
+            {new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </p>
         </div>
+      </section>
 
-        <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-semibold text-slate-700">Time Filter</p>
-            <div className="flex flex-wrap items-center gap-2">
-              {['Today', 'This Week', 'This Month'].map((label) => {
-                const active = selectedTimeFilter === label;
-                return (
-                  <button
-                    key={label}
-                    type="button"
-                    onClick={() => setSelectedTimeFilter(label)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                      active
-                        ? 'border-slate-600 bg-slate-700 text-white'
-                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 hover:bg-slate-100'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      {analyticsError ? (
+        <div className="alert alert-error admin-dashboard-alert">
+          {analyticsError}
         </div>
+      ) : null}
 
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <section className="admin-dashboard-stats-grid">
+        {statCards.map((card) => (
+          <StatsCard
+            key={card.title}
+            title={card.title}
+            value={card.value}
+            helper={card.helper}
+            accent={card.accent}
+            icon={card.icon}
+            iconBg={card.iconBg}
+            iconColor={card.iconColor}
+          />
+        ))}
+      </section>
+
+      <section className="admin-dashboard-toolbar">
+        <p className="admin-dashboard-toolbar-title">Time Filter</p>
+        <div className="admin-dashboard-filter-group">
+          {['Today', 'This Week', 'This Month'].map((label) => {
+            const active = selectedTimeFilter === label;
+
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setSelectedTimeFilter(label)}
+                className={`admin-dashboard-filter-btn ${active ? 'is-active' : ''}`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="admin-dashboard-charts-grid">
           <ChartCard
             title="Top Resources"
             subtitle="Most booked resources by total booking count"
@@ -593,8 +596,8 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 12 }} allowDecimals={false} />
                 <YAxis type="category" dataKey="shortName" tick={{ fontSize: 12 }} width={120} />
-                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(59, 130, 246, 0.08)' }} />
-                <Bar dataKey="bookings" fill="#3b82f6" radius={[0, 8, 8, 0]} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(13, 147, 115, 0.08)' }} />
+                <Bar dataKey="bookings" fill="#0d9373" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -610,7 +613,7 @@ export default function DashboardPage() {
                 <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
                 <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(245, 158, 11, 0.08)' }} />
-                <Bar dataKey="bookings" fill="#f59e0b" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="bookings" fill="#e8941a" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -629,9 +632,9 @@ export default function DashboardPage() {
                 <Line
                   type="monotone"
                   dataKey="bookings"
-                  stroke="#0f766e"
+                  stroke="#0d9373"
                   strokeWidth={3}
-                  dot={{ r: 2, fill: '#0f766e' }}
+                  dot={{ r: 2, fill: '#0d9373' }}
                   activeDot={{ r: 4 }}
                 />
               </LineChart>
@@ -664,26 +667,27 @@ export default function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
           </ChartCard>
-        </div>
+      </section>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
-          <h3 className="text-base font-semibold text-slate-800 md:text-lg">Insights</h3>
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Peak Booking Time</p>
-              <p className="mt-1.5 text-base font-semibold text-slate-800 md:text-lg">{peakHourInsight}</p>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Top Resource</p>
-              <p className="mt-1.5 text-base font-semibold text-slate-800 md:text-lg">{topResourceInsight}</p>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unread Notifications</p>
-              <p className="mt-1.5 text-base font-semibold text-slate-800 md:text-lg">Unread notifications: {unreadCount}</p>
-            </div>
-          </div>
+      <section className="admin-dashboard-insights">
+        <h3>Insights</h3>
+        <div className="admin-dashboard-insights-grid">
+          <article className="admin-dashboard-insight-card">
+            <p className="insight-label">Peak Booking Time</p>
+            <p className="insight-value">{peakHourInsight}</p>
+          </article>
+
+          <article className="admin-dashboard-insight-card">
+            <p className="insight-label">Top Resource</p>
+            <p className="insight-value">{topResourceInsight}</p>
+          </article>
+
+          <article className="admin-dashboard-insight-card">
+            <p className="insight-label">Unread Notifications</p>
+            <p className="insight-value">Unread notifications: {unreadCount}</p>
+          </article>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
