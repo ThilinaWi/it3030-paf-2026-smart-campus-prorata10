@@ -23,6 +23,12 @@ export default function Navbar() {
 
   const closeSidebar = () => setIsSidebarOpen(false);
 
+  const dashboardPath = user?.role === 'ADMIN'
+    ? '/dashboard/admin'
+    : user?.role === 'TECHNICIAN'
+      ? '/dashboard/technician'
+      : '/dashboard/user';
+
   useEffect(() => {
     if (!isAuthenticated) {
       return undefined;
@@ -56,7 +62,7 @@ export default function Navbar() {
               {isSidebarOpen ? <HiOutlineX size={20} /> : <HiOutlineMenu size={20} />}
             </button>
 
-            <Link to="/dashboard" className="navbar-brand" onClick={closeSidebar}>
+            <Link to={dashboardPath} className="navbar-brand" onClick={closeSidebar}>
               <span className="brand-icon">🏫</span>
               <span className="brand-text">Smart Campus</span>
             </Link>
@@ -126,8 +132,8 @@ export default function Navbar() {
       <aside className={`app-sidebar ${isSidebarOpen ? 'open' : ''}`} id="app-sidebar">
         <div className="navbar-links" id="navbar-links">
           <Link
-            to="/dashboard"
-            className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}
+            to={dashboardPath}
+            className={`nav-link ${location.pathname.startsWith('/dashboard') ? 'active' : ''}`}
             id="nav-dashboard"
             onClick={closeSidebar}
           >

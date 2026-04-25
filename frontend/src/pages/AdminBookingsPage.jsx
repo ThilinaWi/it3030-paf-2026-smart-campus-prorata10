@@ -17,6 +17,7 @@ export default function AdminBookingsPage() {
   });
   const { bookings, loading, error, refresh, updateStatus } = useBookings(true, filter);
 
+  
   useEffect(() => {
     const pollInterval = window.setInterval(() => {
       if (!decisionModal.open) {

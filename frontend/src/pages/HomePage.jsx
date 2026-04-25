@@ -117,7 +117,7 @@ const css = `
   .hp-brand-name { font-weight: 700; font-size: .95rem; color: var(--text); letter-spacing: -.02em; }
   .hp-brand-name span { color: var(--accent); }
 
-  .hp-nav-links { display: flex; align-items: center; gap: 2px; }
+  .hp-nav-links { display: flex; align-items: center; gap: 2px; margin-left: auto; }
   .hp-nav-links a {
     font-size: .85rem; font-weight: 500; color: var(--text-3);
     padding: 6px 14px; border-radius: var(--r-xs);
@@ -489,7 +489,6 @@ function Nav() {
 
           <div className="hp-nav-cta">
             <Link to="/login" className="hp-btn-ghost">Sign In</Link>
-            <Link to="/login" className="hp-btn-primary">Get Started →</Link>
             <button
               className="hp-hamburger"
               onClick={() => setMobileOpen(o => !o)}
@@ -506,7 +505,7 @@ function Nav() {
           <a href="#features" onClick={() => setMobileOpen(false)}>Features</a>
           <div className="hp-mobile-cta">
             <Link to="/login" className="hp-btn-primary" onClick={() => setMobileOpen(false)}>
-              Get Started →
+              Sign In
             </Link>
           </div>
         </div>
@@ -537,7 +536,7 @@ function Hero() {
         </p>
 
         <div className="hp-hero-btns">
-          <Link to="/login" className="hp-btn-primary">Sign In with Google →</Link>
+          <Link to="/login" className="hp-btn-primary">Sign In or Register →</Link>
           <a href="#features" className="hp-btn-ghost">See Features</a>
         </div>
 
@@ -645,11 +644,11 @@ export default function HomePage() {
           <div className="hp-cta">
             <h2 className="hp-cta-title">Ready to get started?</h2>
             <p className="hp-cta-desc">
-              Sign in with your university Google account. No setup required —
-              your role is assigned automatically.
+              Create an account with email and password, or continue with your
+              university Google account.
             </p>
             <div className="hp-cta-btns">
-              <Link to="/login" className="hp-btn-cta">Sign In with Google →</Link>
+              <Link to="/login" className="hp-btn-cta">Open Sign In Page →</Link>
             </div>
           </div>
         </div>

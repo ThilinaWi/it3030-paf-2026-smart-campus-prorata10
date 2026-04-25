@@ -64,6 +64,13 @@ Shared:
 - New folder added: Incident Tickets
 - Collection variables added: ticketId, technicianId
 
+## Authentication APIs
+
+- POST /api/auth/register (email/password registration)
+- POST /api/auth/login/local (email/password login)
+- POST /api/auth/login (Google login)
+- GET /api/auth/me (current authenticated user)
+
 ## Setup Instructions
 
 ### Prerequisites

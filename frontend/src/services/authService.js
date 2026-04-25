@@ -15,6 +15,26 @@ const authService = {
   },
 
   /**
+   * Login with local email/password credentials.
+   * @param {{email: string, password: string}} payload
+   * @returns {Promise<{token: string, tokenType: string, user: object}>}
+   */
+  localLogin: async (payload) => {
+    const response = await api.post('/auth/login/local', payload);
+    return response.data;
+  },
+
+  /**
+   * Register a local user account.
+   * @param {{name: string, email: string, password: string, confirmPassword: string}} payload
+   * @returns {Promise<{token: string, tokenType: string, user: object}>}
+   */
+  register: async (payload) => {
+    const response = await api.post('/auth/register', payload);
+    return response.data;
+  },
+
+  /**
    * Get the currently authenticated user's profile.
    * @returns {Promise<object>} User profile data
    */

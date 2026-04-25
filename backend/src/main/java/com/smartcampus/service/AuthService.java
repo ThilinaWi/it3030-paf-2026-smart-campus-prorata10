@@ -6,6 +6,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.smartcampus.security.JwtTokenProvider;
 import com.smartcampus.model.dto.response.AuthResponse;
+import com.smartcampus.model.dto.request.LoginRequest;
+import com.smartcampus.model.dto.request.RegisterRequest;
 import com.smartcampus.model.dto.request.UpdateProfileRequest;
 import com.smartcampus.model.dto.response.UserDTO;
 import com.smartcampus.model.enums.Role;
@@ -15,10 +17,10 @@ import com.smartcampus.exception.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,15 +44,18 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
     private final GoogleIdTokenVerifier verifier;
     private final String serverBaseUrl;
 
     public AuthService(UserRepository userRepository,
                        JwtTokenProvider jwtTokenProvider,
+                       PasswordEncoder passwordEncoder,
                        @Value("${app.google.client-id}") String googleClientId,
                        @Value("${app.server-base-url:http://localhost:8080}") String serverBaseUrl) {
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
         this.serverBaseUrl = serverBaseUrl;
         this.verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(), GsonFactory.getDefaultInstance())
@@ -99,6 +104,63 @@ public class AuthService {
             log.error("Error verifying Google token", e);
             throw new RuntimeException("Failed to verify Google token: " + e.getMessage());
         }
+    }
+
+    /**
+     * Register a local account and return JWT token for immediate sign-in.
+     */
+    public AuthResponse registerLocalUser(RegisterRequest request) {
+        String name = request.getName() == null ? "" : request.getName().trim();
+        String email = normalizeEmail(request.getEmail());
+        String password = request.getPassword();
+        String confirmPassword = request.getConfirmPassword();
+
+        if (name.isBlank()) {
+            throw new IllegalArgumentException("name is required");
+        }
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Password and confirm password do not match");
+        }
+
+        userRepository.findByEmail(email).ifPresent(existing -> {
+            if ("GOOGLE".equalsIgnoreCase(existing.getProvider())) {
+                throw new IllegalArgumentException("This email is registered with Google sign-in");
+            }
+            throw new IllegalArgumentException("An account with this email already exists");
+        });
+
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setRole(Role.USER);
+        user.setProvider("LOCAL");
+        user.setPasswordHash(passwordEncoder.encode(password));
+
+        User saved = userRepository.save(user);
+        String jwtToken = jwtTokenProvider.generateToken(saved);
+        return AuthResponse.of(jwtToken, toDTO(saved));
+    }
+
+    /**
+     * Authenticate a local account by email/password.
+     */
+    public AuthResponse authenticateLocalUser(LoginRequest request) {
+        String email = normalizeEmail(request.getEmail());
+        String password = request.getPassword();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
+
+        if (!"LOCAL".equalsIgnoreCase(user.getProvider()) || user.getPasswordHash() == null) {
+            throw new IllegalArgumentException("This account uses Google sign-in");
+        }
+
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            throw new IllegalArgumentException("Invalid email or password");
+        }
+
+        String jwtToken = jwtTokenProvider.generateToken(user);
+        return AuthResponse.of(jwtToken, toDTO(user));
     }
 
     /**
@@ -228,5 +290,13 @@ public class AuthService {
                 user.getRole(),
                 user.getProvider()
         );
+    }
+
+    private String normalizeEmail(String email) {
+        String normalized = email == null ? "" : email.trim().toLowerCase();
+        if (normalized.isBlank()) {
+            throw new IllegalArgumentException("email is required");
+        }
+        return normalized;
     }
 }

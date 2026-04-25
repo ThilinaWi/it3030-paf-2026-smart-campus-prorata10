@@ -14,6 +14,7 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
   const status = statusConfig[booking.status] || statusConfig.PENDING;
   const isProcessingThisBooking = processingBookingId === booking.id;
   const displayResource = booking.resourceName || booking.resourceId;
+  const attendeeCount = booking.attendees?.length || 0;
 
   const formatDate = (dateStr) => {
     if (!dateStr) return '';
@@ -47,7 +48,7 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
   };
 
   return (
-    <div className={`booking-card ${status.className}`} id={`booking-${booking.id}`}>
+    <article className={`booking-card booking-card-modern ${status.className} ${isAdmin ? 'booking-card-admin' : 'booking-card-user'}`} id={`booking-${booking.id}`}>
       <div className="booking-card-header">
         <div className="booking-resource">
           <HiOutlineLocationMarker size={18} />
@@ -59,29 +60,52 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
       </div>
 
       <div className="booking-card-body">
-        <div className="booking-detail">
-          <HiOutlineCalendar size={16} />
-          <span>{formatDate(booking.date)}</span>
+        <div className="booking-meta-grid">
+          <div className="booking-meta-item">
+            <HiOutlineCalendar size={16} />
+            <div>
+              <span className="booking-meta-label">Date</span>
+              <span className="booking-meta-value">{formatDate(booking.date)}</span>
+            </div>
+          </div>
+
+          <div className="booking-meta-item">
+            <HiOutlineClock size={16} />
+            <div>
+              <span className="booking-meta-label">Time</span>
+              <span className="booking-meta-value">{formatTime(booking.startTime)} — {formatTime(booking.endTime)}</span>
+            </div>
+          </div>
+
+          <div className="booking-meta-item">
+            <HiOutlineUsers size={16} />
+            <div>
+              <span className="booking-meta-label">Attendees</span>
+              <span className="booking-meta-value">{attendeeCount} attendee(s)</span>
+            </div>
+          </div>
         </div>
-        <div className="booking-detail">
-          <HiOutlineClock size={16} />
-          <span>{formatTime(booking.startTime)} — {formatTime(booking.endTime)}</span>
+
+        <div className="booking-purpose-block">
+          <span className="booking-meta-label">Purpose</span>
+          <p className="booking-purpose">{booking.purpose || 'No purpose provided.'}</p>
         </div>
-        <div className="booking-detail">
-          <HiOutlineUsers size={16} />
-          <span>{booking.attendees?.length || 0} attendee(s)</span>
-        </div>
-        {booking.resourceLocation && (
-          <p className="booking-requester">
-            Location: <strong>{booking.resourceLocation}</strong>
-          </p>
+
+        {(booking.resourceLocation || isAdmin) && (
+          <div className="booking-context-grid">
+            {booking.resourceLocation && (
+              <p className="booking-requester">
+                Location: <strong>{booking.resourceLocation}</strong>
+              </p>
+            )}
+            {isAdmin && (
+              <p className="booking-requester">
+                Requested by: <strong>{booking.userName || booking.userId || 'Unknown user'}</strong>
+              </p>
+            )}
+          </div>
         )}
-        {isAdmin && (
-          <p className="booking-requester">
-            Requested by: <strong>{booking.userName || booking.userId || 'Unknown user'}</strong>
-          </p>
-        )}
-        <p className="booking-purpose">{booking.purpose}</p>
+
         {booking.adminReason && (
           <p className="booking-admin-reason">Decision reason: {booking.adminReason}</p>
         )}
@@ -142,6 +166,6 @@ export default function BookingCard({ booking, onCancel, onEdit, onApprove, onRe
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

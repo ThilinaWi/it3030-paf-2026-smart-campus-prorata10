@@ -57,6 +57,42 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
+   * Login with local email/password credentials.
+   */
+  const loginWithPassword = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+      const response = await authService.localLogin(payload);
+      localStorage.setItem(TOKEN_KEY, response.token);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      console.error('Local login failed:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Register a local account and sign in immediately.
+   */
+  const register = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+      const response = await authService.register(payload);
+      localStorage.setItem(TOKEN_KEY, response.token);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      console.error('Register failed:', error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * Update current user's profile details and keep context in sync.
    */
   const updateProfile = useCallback(async (payload) => {
@@ -86,6 +122,8 @@ export function AuthProvider({ children }) {
     user,
     loading,
     login,
+    loginWithPassword,
+    register,
     updateProfile,
     uploadProfilePicture,
     logout,

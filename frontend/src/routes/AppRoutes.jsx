@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from '../components/ProtectedRoute';
+import { useAuth } from '../hooks/useAuth';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
 import DashboardPage from '../pages/DashboardPage';
@@ -17,6 +18,20 @@ import ResourceList from '../components/resources/ResourceList';
 import ResourceDetail from '../components/resources/ResourceDetail';
 import ResourceForm from '../components/resources/ResourceForm';
 
+function RoleDashboardRedirect() {
+  const { user } = useAuth();
+
+  if (user?.role === 'ADMIN') {
+    return <Navigate to="/dashboard/admin" replace />;
+  }
+
+  if (user?.role === 'TECHNICIAN') {
+    return <Navigate to="/dashboard/technician" replace />;
+  }
+
+  return <Navigate to="/dashboard/user" replace />;
+}
+
 /**
  * Application route definitions.
  */
@@ -33,6 +48,30 @@ export default function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
+            <RoleDashboardRedirect />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/user"
+        element={
+          <ProtectedRoute allowedRoles={['USER']}>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/technician"
+        element={
+          <ProtectedRoute allowedRoles={['TECHNICIAN']}>
+            <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/admin"
+        element={
+          <ProtectedRoute allowedRoles={['ADMIN']}>
             <DashboardPage />
           </ProtectedRoute>
         }

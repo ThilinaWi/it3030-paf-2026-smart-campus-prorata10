@@ -31,6 +31,8 @@ C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\ba
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\CreateBookingRequest.java
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\CreateNotificationRequest.java
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\GoogleTokenRequest.java
+C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\LoginRequest.java
+C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\RegisterRequest.java
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\UpdateBookingRequest.java
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\UpdateBookingStatusRequest.java
 C:\Users\thili\OneDrive\Documents\GitHub\it3030-paf-2026-smart-campus-groupXX\backend\src\main\java\com\smartcampus\model\dto\request\UpdateNotificationPreferencesRequest.java

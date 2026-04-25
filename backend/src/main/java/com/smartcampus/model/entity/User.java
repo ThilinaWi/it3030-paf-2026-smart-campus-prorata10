@@ -63,6 +63,8 @@ public class User {
     @Indexed(unique = true)
     private String email;
 
+    private String passwordHash;
+
     private String profilePicture;
 
     private Role role = Role.USER;
@@ -94,6 +96,9 @@ public class User {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
     public String getProfilePicture() { return profilePicture; }
     public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }

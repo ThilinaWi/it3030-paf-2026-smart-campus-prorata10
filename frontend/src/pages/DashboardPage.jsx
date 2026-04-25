@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Bar,
   BarChart,
@@ -19,10 +20,15 @@ import {
   HiOutlineCheckCircle,
   HiOutlineChartBar,
   HiOutlineExclamationCircle,
+  HiOutlineBell,
+  HiOutlineClipboardList,
+  HiOutlinePlus,
 } from 'react-icons/hi';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import adminAnalyticsService from '../services/adminAnalyticsService';
+import bookingService from '../services/bookingService';
+import incidentService from '../services/incidentService';
 import StatsCard from '../components/StatsCard';
 import ChartCard from '../components/ChartCard';
 
@@ -44,6 +50,14 @@ export default function DashboardPage() {
     activeIncidents: 0,
     resolvedIncidents: 0,
     statusCounts: [],
+  });
+  const [roleCounts, setRoleCounts] = useState({
+    loading: false,
+    myBookings: 0,
+    myIncidents: 0,
+    myActiveIncidents: 0,
+    assignedIncidents: 0,
+    inProgressAssigned: 0,
   });
 
   const getGreeting = () => {
@@ -95,6 +109,73 @@ export default function DashboardPage() {
     };
 
     loadAnalytics();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.role]);
+
+  useEffect(() => {
+    if (!user?.role || user.role === 'ADMIN') {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadRoleCounts = async () => {
+      try {
+        setRoleCounts((prev) => ({ ...prev, loading: true }));
+
+        if (user.role === 'USER') {
+          const [bookings, incidents] = await Promise.all([
+            bookingService.getMyBookings(),
+            incidentService.getMyIncidents(),
+          ]);
+
+          if (cancelled) return;
+
+          const activeStatuses = new Set(['OPEN', 'ASSIGNED', 'IN_PROGRESS']);
+          const safeBookings = Array.isArray(bookings) ? bookings : [];
+          const safeIncidents = Array.isArray(incidents) ? incidents : [];
+
+          setRoleCounts({
+            loading: false,
+            myBookings: safeBookings.length,
+            myIncidents: safeIncidents.length,
+            myActiveIncidents: safeIncidents.filter((incident) => activeStatuses.has(incident?.status)).length,
+            assignedIncidents: 0,
+            inProgressAssigned: 0,
+          });
+          return;
+        }
+
+        if (user.role === 'TECHNICIAN') {
+          const [bookings, assignedIncidents] = await Promise.all([
+            bookingService.getMyBookings(),
+            incidentService.getAssignedIncidents(),
+          ]);
+
+          if (cancelled) return;
+
+          const safeBookings = Array.isArray(bookings) ? bookings : [];
+          const safeAssigned = Array.isArray(assignedIncidents) ? assignedIncidents : [];
+
+          setRoleCounts({
+            loading: false,
+            myBookings: safeBookings.length,
+            myIncidents: 0,
+            myActiveIncidents: 0,
+            assignedIncidents: safeAssigned.length,
+            inProgressAssigned: safeAssigned.filter((incident) => incident?.status === 'IN_PROGRESS').length,
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setRoleCounts((prev) => ({ ...prev, loading: false }));
+      }
+    };
+
+    loadRoleCounts();
 
     return () => {
       cancelled = true;
@@ -221,13 +302,13 @@ export default function DashboardPage() {
     [incidentsSummary?.statusCounts],
   );
 
-  if (user?.role !== 'ADMIN') {
+  if (user?.role === 'USER') {
     return (
       <div className="dashboard-page" id="dashboard-page">
         <div className="welcome-banner">
           <div className="welcome-text">
             <h1>{getGreeting()}, {user?.name?.split(' ')[0]}!</h1>
-            <p>Welcome back to Smart Campus.</p>
+            <p>Your USER dashboard for bookings, incidents, and updates.</p>
           </div>
           <div className="welcome-meta">
             <span className="role-badge">{user?.role}</span>
@@ -243,10 +324,175 @@ export default function DashboardPage() {
         </div>
         <div className="stats-grid">
           <div className="stat-card">
+            <div className="stat-icon" style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>
+              <HiOutlineBell size={22} />
+            </div>
             <div className="stat-info">
               <span className="stat-value">{unreadCount}</span>
               <span className="stat-label">Unread Notifications</span>
             </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#ecfeff', color: '#0e7490' }}>
+              <HiOutlineCalendar size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.myBookings}</span>
+              <span className="stat-label">My Bookings</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fff8ed', color: '#ca8a04' }}>
+              <HiOutlineClipboardList size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.myIncidents}</span>
+              <span className="stat-label">My Incidents</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fef3c7', color: '#92400e' }}>
+              <HiOutlineExclamationCircle size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.myActiveIncidents}</span>
+              <span className="stat-label">Active Incidents</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-section">
+          <h2 className="section-title">Quick Actions</h2>
+          <div className="quick-actions-grid">
+            <Link to="/bookings" className="action-card">
+              <div className="action-icon" style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>
+                <HiOutlineCalendar size={22} />
+              </div>
+              <h3>My Bookings</h3>
+              <p>View, create, and manage your booking requests.</p>
+            </Link>
+
+            <Link to="/incidents/my" className="action-card">
+              <div className="action-icon" style={{ background: '#fff8ed', color: '#ca8a04' }}>
+                <HiOutlineClipboardList size={22} />
+              </div>
+              <h3>My Incidents</h3>
+              <p>Track all incidents you have reported.</p>
+            </Link>
+
+            <Link to="/incidents/create" className="action-card">
+              <div className="action-icon" style={{ background: '#ecfeff', color: '#0e7490' }}>
+                <HiOutlinePlus size={22} />
+              </div>
+              <h3>Create Incident</h3>
+              <p>Report a new issue to campus operations quickly.</p>
+            </Link>
+
+            <Link to="/notifications" className="action-card">
+              <div className="action-icon" style={{ background: '#f0fdf4', color: '#15803d' }}>
+                <HiOutlineBell size={22} />
+              </div>
+              <h3>Notifications</h3>
+              <p>Check latest updates and mark alerts as read.</p>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (user?.role === 'TECHNICIAN') {
+    return (
+      <div className="dashboard-page" id="dashboard-page">
+        <div className="welcome-banner">
+          <div className="welcome-text">
+            <h1>{getGreeting()}, {user?.name?.split(' ')[0]}!</h1>
+            <p>Your TECHNICIAN dashboard for assigned incidents and updates.</p>
+          </div>
+          <div className="welcome-meta">
+            <span className="role-badge">{user?.role}</span>
+            <span className="date-text">
+              {new Date().toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
+        </div>
+
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>
+              <HiOutlineBell size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{unreadCount}</span>
+              <span className="stat-label">Unread Notifications</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fff8ed', color: '#ca8a04' }}>
+              <HiOutlineClipboardList size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.assignedIncidents}</span>
+              <span className="stat-label">Assigned Incidents</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#fef3c7', color: '#92400e' }}>
+              <HiOutlineExclamationCircle size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.inProgressAssigned}</span>
+              <span className="stat-label">In Progress</span>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon" style={{ background: '#ecfeff', color: '#0e7490' }}>
+              <HiOutlineCalendar size={22} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-value">{roleCounts.loading ? '...' : roleCounts.myBookings}</span>
+              <span className="stat-label">My Bookings</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="dashboard-section">
+          <h2 className="section-title">Quick Actions</h2>
+          <div className="quick-actions-grid">
+            <Link to="/incidents/assigned" className="action-card">
+              <div className="action-icon" style={{ background: '#fff8ed', color: '#ca8a04' }}>
+                <HiOutlineClipboardList size={22} />
+              </div>
+              <h3>Assigned Incidents</h3>
+              <p>View and update incidents assigned to you.</p>
+            </Link>
+
+            <Link to="/bookings" className="action-card">
+              <div className="action-icon" style={{ background: 'var(--primary-bg)', color: 'var(--primary)' }}>
+                <HiOutlineCalendar size={22} />
+              </div>
+              <h3>Bookings</h3>
+              <p>Review booking information relevant to your workflow.</p>
+            </Link>
+
+            <Link to="/notifications" className="action-card">
+              <div className="action-icon" style={{ background: '#f0fdf4', color: '#15803d' }}>
+                <HiOutlineBell size={22} />
+              </div>
+              <h3>Notifications</h3>
+              <p>Stay updated with assignment and status alerts.</p>
+            </Link>
           </div>
         </div>
       </div>

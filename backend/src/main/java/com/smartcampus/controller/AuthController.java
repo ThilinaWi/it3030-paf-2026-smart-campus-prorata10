@@ -1,7 +1,9 @@
 package com.smartcampus.controller;
 
 import com.smartcampus.model.dto.response.AuthResponse;
+import com.smartcampus.model.dto.request.LoginRequest;
 import com.smartcampus.model.dto.request.GoogleTokenRequest;
+import com.smartcampus.model.dto.request.RegisterRequest;
 import com.smartcampus.model.dto.request.UpdateProfileRequest;
 import com.smartcampus.model.dto.response.UserDTO;
 import com.smartcampus.model.entity.User;
@@ -34,6 +36,26 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody GoogleTokenRequest request) {
         AuthResponse response = authService.authenticateWithGoogle(request.getToken());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Register a local account using name, email and password.
+     * POST /api/auth/register
+     */
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.registerLocalUser(request);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Login a local account using email and password.
+     * POST /api/auth/login/local
+     */
+    @PostMapping("/login/local")
+    public ResponseEntity<AuthResponse> loginLocal(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.authenticateLocalUser(request);
         return ResponseEntity.ok(response);
     }
 
