@@ -42,6 +42,19 @@ export default function NotificationItem({ notification, onMarkAsRead }) {
     });
   };
 
+  const formatMessage = (rawMessage) => {
+    if (!rawMessage) return '';
+
+    if (normalizedMessage.includes('booking request')) {
+      return rawMessage.replace(
+        /\sfor\s([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?=\s(on|at)\b)/gi,
+        ''
+      );
+    }
+
+    return rawMessage;
+  };
+
   return (
     <div
       className={`notification-item notification-item-${notificationCategory} ${isRead ? 'read' : 'unread'}`}
@@ -51,7 +64,7 @@ export default function NotificationItem({ notification, onMarkAsRead }) {
         {categoryIcons[notificationCategory]}
       </div>
       <div className="notification-content">
-        <p className="notification-message">{message}</p>
+        <p className="notification-message">{formatMessage(message)}</p>
         <span className="notification-time">{formatTime(createdAt)}</span>
       </div>
       {!isRead && (
